@@ -1,0 +1,11 @@
+[MESSAGES CONTROL]
+disable=
+    C0114, # missing-module-docstring
+    C0115, # missing-class-docstring
+    C0116, # missing-function-docstring
+    C0301, # line-too-long
+    R0902, # too-many-instance-attributes
+    R0903, # Too few public methods
+    R0913, # too-many-arguments
+    W0621, # redefined-outer-name
+    W0718, # broad-exception-caught
