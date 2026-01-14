@@ -3,6 +3,8 @@ from datetime import datetime
 from enum import Enum
 from typing import Optional
 
+from src.domain.models import PublicBody
+
 
 class TenderStatus(Enum):
     PLANNED = 1
@@ -33,7 +35,7 @@ class Tender:
     tender_year: int
     tender_type: TenderType
     tender_format: TenderFormat
-    # public_body: PublicBody
+    public_body: PublicBody
     status = TenderStatus
     tender_object = Optional[str]
     session_date = Optional[datetime]
