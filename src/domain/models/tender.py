@@ -3,7 +3,7 @@ from datetime import datetime
 from enum import Enum
 from typing import Optional
 
-from src.domain.models import PublicBody
+from . import PublicBody
 
 
 class TenderStatus(Enum):
