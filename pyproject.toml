@@ -11,7 +11,10 @@ dependencies = [
     "fastapi[standard] (>=0.128.0,<0.129.0)",
     "pydantic-settings (>=2.12.0,<3.0.0)",
     "sqlalchemy (>=2.0.46,<3.0.0)",
-    "alembic (>=1.18.3,<2.0.0)"
+    "alembic (>=1.18.3,<2.0.0)",
+    "pyjwt (>=2.11.0,<3.0.0)",
+    "tzdata (>=2025.3,<2026.0)",
+    "pwdlib[argon2] (>=0.3.0,<0.4.0)"
 ]
 
 [tool.poetry]
