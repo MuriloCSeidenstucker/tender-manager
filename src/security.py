@@ -9,7 +9,7 @@ from pwdlib import PasswordHash
 from sqlalchemy import select
 from sqlalchemy.ext.asyncio import AsyncSession
 
-from src.infra.entities.user_entity import UserEntity
+from src.infra.entities import UserEntity
 from src.infra.settings.database import get_session
 from src.settings import Settings
 

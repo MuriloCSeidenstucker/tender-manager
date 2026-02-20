@@ -12,7 +12,7 @@ from sqlalchemy.ext.asyncio import AsyncSession, create_async_engine
 from sqlalchemy.pool import StaticPool
 
 from src.app import app
-from src.infra.entities.user_entity import UserEntity, table_registry
+from src.infra.entities import UserEntity, table_registry
 from src.infra.settings.database import get_session
 from src.security import get_password_hash
 

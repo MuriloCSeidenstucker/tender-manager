@@ -8,12 +8,12 @@ from sqlalchemy import select
 from sqlalchemy.exc import IntegrityError
 from sqlalchemy.ext.asyncio import AsyncSession
 
-from src.infra.entities.user_entity import UserEntity
+from src.infra.entities import UserEntity
 from src.infra.settings.database import get_session
-from src.presentation.schemas.user_schema import (
-    FilterPage,
-    Message,
-    UserList,
+from src.presentation.schemas import (
+    FilterPageSchema,
+    MessageSchema,
+    UserListSchema,
     UserPublicSchema,
     UserSchema,
 )
@@ -62,8 +62,10 @@ async def create_user(user: UserSchema, session: Session):
     return db_user
 
 
-@router.get("/", response_model=UserList)
-async def read_users(session: Session, filter_users: Annotated[FilterPage, Query()]):
+@router.get("/", response_model=UserListSchema)
+async def read_users(
+    session: Session, filter_users: Annotated[FilterPageSchema, Query()]
+):
     query = await session.scalars(
         select(UserEntity).offset(filter_users.offset).limit(filter_users.limit)
     )
@@ -99,7 +101,7 @@ async def update_user(
         ) from e
 
 
-@router.delete("/{user_id}", response_model=Message)
+@router.delete("/{user_id}", response_model=MessageSchema)
 async def delete_user(
     user_id: int,
     session: Session,

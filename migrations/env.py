@@ -7,7 +7,7 @@ from alembic import context
 from sqlalchemy import pool
 from sqlalchemy.ext.asyncio import async_engine_from_config
 
-from src.infra.entities.user_entity import table_registry
+from src.infra.entities import table_registry
 from src.settings import Settings
 
 # this is the Alembic Config object, which provides
