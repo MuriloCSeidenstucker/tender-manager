@@ -1,6 +1,7 @@
 # pylint: disable=E1101:no-member
 
 import asyncio
+import sys
 from logging.config import fileConfig
 
 from alembic import context
@@ -86,6 +87,9 @@ def run_migrations_online() -> None:
 
     asyncio.run(run_async_migrations())
 
+
+if sys.platform == "win32":
+    asyncio.set_event_loop_policy(asyncio.WindowsSelectorEventLoopPolicy())
 
 if context.is_offline_mode():
     run_migrations_offline()
