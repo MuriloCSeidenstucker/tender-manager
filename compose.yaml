@@ -14,13 +14,13 @@ services:
       retries: 10
 
   tendermanager_app:
-    image: tendermanager_app
-    entrypoint: ./entrypoint.sh
     build: .
+    image: tendermanager_app
     ports:
       - "8000:8000"
     depends_on:
-      - tendermanager_database
+      tendermanager_database:
+        condition: service_healthy
     env_file:
       - .env
 
