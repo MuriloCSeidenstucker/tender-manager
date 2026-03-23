@@ -3,7 +3,7 @@ from dataclasses import asdict
 import pytest
 from sqlalchemy import select
 
-from src.infra.entities import TodoEntity, UserEntity
+from src.infra.entities import CompanyEntity, UserEntity
 
 
 @pytest.mark.asyncio
@@ -23,46 +23,45 @@ async def test_create_user(session, mock_db_time):
         "password": "secret",
         "email": "test@test",
         "created_at": time,
-        "todos": [],
+        "companies": [],
     }
 
 
 @pytest.mark.asyncio
-async def test_creat_todo(session, user):
-    todo = TodoEntity(
-        title="Test Todo",
-        description="Test Desc",
-        state="draft",
+async def test_create_company(session, user):
+    company = CompanyEntity(
+        name="Test Company",
+        trade_name="Test trade name",
+        cnpj="12345678901234",
         user_id=user.id,
     )
 
-    session.add(todo)
+    session.add(company)
     await session.commit()
 
-    todo = await session.scalar(select(TodoEntity))
+    company = await session.scalar(select(CompanyEntity))
 
-    assert asdict(todo) == {
-        "description": "Test Desc",
-        "id": 1,
-        "state": "draft",
-        "title": "Test Todo",
-        "user_id": 1,
-    }
+    assert company.id == 1
+    assert company.name == "Test Company"
+    assert company.trade_name == "Test trade name"
+    assert company.cnpj == "12345678901234"
+    assert company.user_id == user.id
+    assert company.created_at is not None
 
 
 @pytest.mark.asyncio
-async def test_user_todo_relationship(session, user: UserEntity):
-    todo = TodoEntity(
-        title="Test Todo",
-        description="Test Desc",
-        state="draft",
+async def test_user_company_relationship(session, user: UserEntity):
+    company = CompanyEntity(
+        name="Test Company",
+        trade_name="Test trade name",
+        cnpj="12345678901234",
         user_id=user.id,
     )
 
-    session.add(todo)
+    session.add(company)
     await session.commit()
     await session.refresh(user)
 
     user = await session.scalar(select(UserEntity).where(UserEntity.id == user.id))
 
-    assert user.todos == [todo]
+    assert user.companies == [company]

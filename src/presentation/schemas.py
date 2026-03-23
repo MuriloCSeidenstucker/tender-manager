@@ -1,7 +1,5 @@
 from pydantic import BaseModel, ConfigDict, EmailStr, Field
 
-from src.infra.entities import TodoState
-
 
 class UserSchema(BaseModel):
     username: str
@@ -34,27 +32,27 @@ class FilterPageSchema(BaseModel):
     limit: int = Field(100, ge=1)
 
 
-class TodoSchema(BaseModel):
-    title: str
-    description: str
-    state: TodoState
+class CompanySchema(BaseModel):
+    name: str
+    trade_name: str
+    cnpj: str
 
 
-class TodoPublicSchema(TodoSchema):
+class CompanyPublicSchema(CompanySchema):
     id: int
 
 
-class TodoListSchema(BaseModel):
-    todos: list[TodoPublicSchema]
+class CompanyListSchema(BaseModel):
+    companies: list[CompanyPublicSchema]
 
 
-class FilterTodoSchema(FilterPageSchema):
-    title: str | None = Field(None, min_length=3, max_length=20)
-    description: str | None = Field(None, min_length=3, max_length=20)
-    state: TodoState | None = None
+class FilterCompanySchema(FilterPageSchema):
+    name: str | None = Field(None, min_length=3, max_length=150)
+    trade_name: str | None = Field(None, min_length=3, max_length=150)
+    cnpj: str | None = Field(None, min_length=5, max_length=14)
 
 
-class TodoUpdateSchema(BaseModel):
-    title: str | None = Field(None, min_length=3, max_length=20)
-    description: str | None = Field(None, min_length=3, max_length=20)
-    state: TodoState | None = None
+class CompanyUpdateSchema(BaseModel):
+    name: str | None = Field(None, min_length=3, max_length=150)
+    trade_name: str | None = Field(None, min_length=3, max_length=150)
+    cnpj: str | None = Field(None, min_length=5, max_length=14)
