@@ -13,9 +13,9 @@ from src.infra.settings.database import get_session
 from src.presentation.schemas import (
     FilterPageSchema,
     MessageSchema,
+    UserCreateSchema,
     UserListSchema,
     UserPublicSchema,
-    UserSchema,
 )
 from src.security import (
     get_current_user,
@@ -28,7 +28,7 @@ CurrentUser = Annotated[UserEntity, Depends(get_current_user)]
 
 
 @router.post("/", status_code=HTTPStatus.CREATED, response_model=UserPublicSchema)
-async def create_user(user: UserSchema, session: Session):
+async def create_user(user: UserCreateSchema, session: Session):
     db_user = await session.scalar(
         select(UserEntity).where(
             (UserEntity.username == user.username) | (UserEntity.email == user.email)
@@ -77,7 +77,7 @@ async def read_users(
 @router.put("/{user_id}", response_model=UserPublicSchema)
 async def update_user(
     user_id: int,
-    user: UserSchema,
+    user: UserCreateSchema,
     session: Session,
     current_user: CurrentUser,
 ):

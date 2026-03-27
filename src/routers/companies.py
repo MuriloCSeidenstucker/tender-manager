@@ -8,9 +8,9 @@ from sqlalchemy.ext.asyncio import AsyncSession
 from src.infra.entities import CompanyEntity, UserEntity
 from src.infra.settings.database import get_session
 from src.presentation.schemas import (
+    CompanyCreateSchema,
     CompanyListSchema,
     CompanyPublicSchema,
-    CompanySchema,
     CompanyUpdateSchema,
     FilterCompanySchema,
     MessageSchema,
@@ -25,7 +25,7 @@ router = APIRouter(prefix="/companies", tags=["companies"])
 
 @router.post("/", response_model=CompanyPublicSchema)
 async def create_company(
-    company: CompanySchema,
+    company: CompanyCreateSchema,
     user: CurrentUser,
     session: Session,
 ):

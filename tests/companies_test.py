@@ -1,19 +1,8 @@
 from http import HTTPStatus
 
-import factory
 import pytest
 
-from src.infra.entities import CompanyEntity
-
-
-class CompanyFactory(factory.Factory):
-    class Meta:
-        model = CompanyEntity
-
-    name = factory.Faker("text")
-    trade_name = factory.Faker("text")
-    cnpj = factory.Faker("text")
-    user_id = 1
+from tests.factories.company_factory import CompanyFactory
 
 
 def test_create_company(client, token):
