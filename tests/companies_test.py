@@ -2,7 +2,7 @@ from http import HTTPStatus
 
 import pytest
 
-from tests.factories.company_factory import CompanyFactory
+from tests.factories import CompanyFactory
 
 
 def test_create_company(client, token):

@@ -104,3 +104,21 @@ class TenderPublicSchema(BaseModel):
     awarded_value: str | None
     session_date: datetime
     created_at: datetime
+    model_config = ConfigDict(from_attributes=True)
+
+
+class TenderListSchema(BaseModel):
+    tenders: list[TenderPublicSchema]
+
+
+class FilterTenderSchema(FilterPageSchema):
+    company_id: int | None = None
+    tender_number: int | None = None
+    tender_year: int | None = None
+    object_description: str | None = None
+    public_body_name: str | None = None
+    modality: TenderModality | None = None
+    format: TenderFormat | None = None
+    status: TenderStatus | None = None
+    participation_result: ParticipationResult | None = None
+    session_date: datetime | None = None
