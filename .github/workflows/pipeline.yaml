@@ -37,7 +37,7 @@ jobs:
         run: poetry check --lock
 
       - name: Install Dependencies
-        run: poetry install
+        run: poetry install --with dev
 
       - name: Run Tests
         run: poetry run task test
