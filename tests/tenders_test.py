@@ -2,6 +2,7 @@ from http import HTTPStatus
 
 import pytest
 
+from src.infra.entities import TenderEntity
 from tests.factories import CompanyFactory, TenderFactory
 
 
@@ -133,3 +134,220 @@ async def test_list_tenders_should_not_access_other_user_company(
     )
 
     assert response.status_code == 404
+
+
+@pytest.mark.asyncio
+async def test_patch_tender_success(client, session, user, token):
+    company = CompanyFactory(user_id=user.id)
+    session.add(company)
+    await session.commit()
+    await session.refresh(company)
+
+    tender = TenderFactory(company_id=company.id)
+    session.add(tender)
+    await session.commit()
+    await session.refresh(tender)
+
+    payload = {
+        "object_description": "Updated description",
+        "status": "approved",
+    }
+
+    response = client.patch(
+        f"/companies/{company.id}/tenders/{tender.id}",
+        json=payload,
+        headers={"Authorization": f"Bearer {token}"},
+    )
+
+    assert response.status_code == HTTPStatus.OK
+
+    data = response.json()
+    assert data["object_description"] == "Updated description"
+    assert data["status"] == "approved"
+
+
+@pytest.mark.asyncio
+async def test_patch_tender_not_found(client, session, user, token):
+    company = CompanyFactory(user_id=user.id)
+    session.add(company)
+    await session.commit()
+    await session.refresh(company)
+
+    response = client.patch(
+        f"/companies/{company.id}/tenders/9999",
+        json={"status": "approved"},
+        headers={"Authorization": f"Bearer {token}"},
+    )
+
+    assert response.status_code == HTTPStatus.NOT_FOUND
+    assert response.json()["detail"] == "Tender not found."
+
+
+@pytest.mark.asyncio
+async def test_patch_tender_company_not_owned(client, session, other_user, token):
+    company = CompanyFactory(user_id=other_user.id)
+    session.add(company)
+    await session.commit()
+    await session.refresh(company)
+
+    tender = TenderFactory(company_id=company.id)
+    session.add(tender)
+    await session.commit()
+
+    response = client.patch(
+        f"/companies/{company.id}/tenders/{tender.id}",
+        json={"status": "approved"},
+        headers={"Authorization": f"Bearer {token}"},
+    )
+
+    assert response.status_code == HTTPStatus.NOT_FOUND
+    assert response.json()["detail"] == "Company not found."
+
+
+@pytest.mark.asyncio
+async def test_patch_tender_partial_update_only(client, session, user, token):
+    company = CompanyFactory(user_id=user.id)
+    session.add(company)
+    await session.commit()
+    await session.refresh(company)
+
+    tender = TenderFactory(
+        company_id=company.id,
+        object_description="Original",
+    )
+    session.add(tender)
+    await session.commit()
+    await session.refresh(tender)
+
+    payload = {"status": "approved"}
+
+    response = client.patch(
+        f"/companies/{company.id}/tenders/{tender.id}",
+        json=payload,
+        headers={"Authorization": f"Bearer {token}"},
+    )
+
+    assert response.status_code == HTTPStatus.OK
+
+    db_tender = await session.get(TenderEntity, tender.id)
+
+    assert db_tender.status.value == "approved"
+    assert db_tender.object_description == "Original"
+
+
+@pytest.mark.asyncio
+async def test_patch_tender_multiple_fields(client, session, user, token):
+    company = CompanyFactory(user_id=user.id)
+    session.add(company)
+    await session.commit()
+    await session.refresh(company)
+
+    tender = TenderFactory(company_id=company.id)
+    session.add(tender)
+    await session.commit()
+    await session.refresh(tender)
+
+    payload = {
+        "tender_number": 999,
+        "tender_year": 2030,
+        "status": "finished",
+        "format": "electronic",
+    }
+
+    response = client.patch(
+        f"/companies/{company.id}/tenders/{tender.id}",
+        json=payload,
+        headers={"Authorization": f"Bearer {token}"},
+    )
+
+    assert response.status_code == HTTPStatus.OK
+
+    db_tender = await session.get(TenderEntity, tender.id)
+
+    assert db_tender.tender_number == 999
+    assert db_tender.tender_year == 2030
+    assert db_tender.status.value == "finished"
+    assert db_tender.format.value == "electronic"
+
+
+@pytest.mark.asyncio
+async def test_delete_tender_success(client, session, user, token):
+    company = CompanyFactory(user_id=user.id)
+    session.add(company)
+    await session.commit()
+    await session.refresh(company)
+
+    tender = TenderFactory(company_id=company.id)
+    session.add(tender)
+    await session.commit()
+    await session.refresh(tender)
+
+    response = client.delete(
+        f"/companies/{company.id}/tenders/{tender.id}",
+        headers={"Authorization": f"Bearer {token}"},
+    )
+
+    assert response.status_code == HTTPStatus.OK
+    assert response.json() == {"message": "Tender has been deleted successfully."}
+
+    db_tender = await session.get(TenderEntity, tender.id)
+    assert db_tender is None
+
+
+@pytest.mark.asyncio
+async def test_delete_tender_not_found(client, session, user, token):
+    company = CompanyFactory(user_id=user.id)
+    session.add(company)
+    await session.commit()
+    await session.refresh(company)
+
+    response = client.delete(
+        f"/companies/{company.id}/tenders/9999",
+        headers={"Authorization": f"Bearer {token}"},
+    )
+
+    assert response.status_code == HTTPStatus.NOT_FOUND
+    assert response.json()["detail"] == "Tender not found."
+
+
+@pytest.mark.asyncio
+async def test_delete_tender_company_not_owned(client, session, other_user, token):
+    company = CompanyFactory(user_id=other_user.id)
+    session.add(company)
+    await session.commit()
+    await session.refresh(company)
+
+    tender = TenderFactory(company_id=company.id)
+    session.add(tender)
+    await session.commit()
+
+    response = client.delete(
+        f"/companies/{company.id}/tenders/{tender.id}",
+        headers={"Authorization": f"Bearer {token}"},
+    )
+
+    assert response.status_code == HTTPStatus.NOT_FOUND
+    assert response.json()["detail"] == "Company not found."
+
+
+@pytest.mark.asyncio
+async def test_delete_tender_wrong_company(client, session, user, token):
+    company1 = CompanyFactory(user_id=user.id)
+    session.add(company1)
+
+    company2 = CompanyFactory(user_id=user.id)
+    session.add(company2)
+
+    await session.commit()
+
+    tender = TenderFactory(company_id=company1.id)
+    session.add(tender)
+    await session.commit()
+
+    response = client.delete(
+        f"/companies/{company2.id}/tenders/{tender.id}",
+        headers={"Authorization": f"Bearer {token}"},
+    )
+
+    assert response.status_code == HTTPStatus.NOT_FOUND
+    assert response.json()["detail"] == "Tender not found."

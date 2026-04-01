@@ -101,7 +101,7 @@ class TenderPublicSchema(BaseModel):
     format: TenderFormat
     status: TenderStatus
     participation_result: ParticipationResult | None
-    awarded_value: str | None
+    awarded_value: Decimal | None
     session_date: datetime
     created_at: datetime
     model_config = ConfigDict(from_attributes=True)
