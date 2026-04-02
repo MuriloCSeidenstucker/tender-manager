@@ -8,7 +8,7 @@ from sqlalchemy.ext.asyncio import AsyncSession
 
 from src.infra.entities import UserEntity
 from src.infra.settings.database import get_session
-from src.presentation.schemas import TokenSchema
+from src.schemas import TokenSchema
 from src.security import create_access_token, get_current_user, verify_password
 
 router = APIRouter(prefix="/auth", tags=["auth"])

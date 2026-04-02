@@ -4,8 +4,8 @@ from http import HTTPStatus
 
 from fastapi import FastAPI
 
-from src.presentation.schemas import MessageSchema
 from src.routers import auth, companies, tenders, users
+from src.schemas import MessageSchema
 
 if sys.platform == "win32":
     asyncio.set_event_loop_policy(asyncio.WindowsSelectorEventLoopPolicy())

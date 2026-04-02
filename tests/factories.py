@@ -1,6 +1,7 @@
 from datetime import datetime
 
 import factory
+from faker import Faker
 
 from src.infra.entities import (
     CompanyEntity,
@@ -10,14 +11,16 @@ from src.infra.entities import (
     TenderStatus,
 )
 
+fake = Faker()
+
 
 class CompanyFactory(factory.Factory):
     class Meta:
         model = CompanyEntity
 
-    name = factory.Faker("text")
-    trade_name = factory.Faker("text")
-    cnpj = factory.Faker("text")
+    name = factory.LazyAttribute(lambda _: fake.company()[:150])
+    trade_name = factory.LazyAttribute(lambda _: fake.company()[:150])
+    cnpj = factory.Sequence(lambda n: f"{n:014d}")
     user_id = 1
 
 
@@ -27,8 +30,8 @@ class TenderFactory(factory.Factory):
 
     tender_number = factory.Sequence(lambda n: n + 1)
     tender_year = 2026
-    object_description = factory.Faker("sentence")
-    public_body_name = factory.Faker("company")
+    object_description = factory.LazyAttribute(lambda _: fake.company()[:500])
+    public_body_name = factory.LazyAttribute(lambda _: fake.company()[:150])
     modality = factory.Iterator(list(TenderModality))
     format = factory.Iterator(list(TenderFormat))
     status = factory.Iterator(list(TenderStatus))

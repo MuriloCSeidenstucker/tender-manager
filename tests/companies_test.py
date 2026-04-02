@@ -23,6 +23,57 @@ def test_create_company(client, token):
     }
 
 
+def test_create_company_invalid_name(client, token):
+    response = client.post(
+        "/companies/",
+        headers={"Authorization": f"Bearer {token}"},
+        json={
+            "name": "ab",
+            "trade_name": "valid trade name",
+            "cnpj": "12345678901234",
+        },
+    )
+
+    assert response.status_code == HTTPStatus.UNPROCESSABLE_ENTITY
+
+
+def test_create_company_invalid_trade_name(client, token):
+    response = client.post(
+        "/companies/",
+        headers={"Authorization": f"Bearer {token}"},
+        json={
+            "name": "valid name",
+            "trade_name": "ab",
+            "cnpj": "12345678901234",
+        },
+    )
+
+    assert response.status_code == HTTPStatus.UNPROCESSABLE_ENTITY
+
+
+def test_create_company_invalid_cnpj(client, token):
+    response = client.post(
+        "/companies/",
+        headers={"Authorization": f"Bearer {token}"},
+        json={
+            "name": "valid name",
+            "trade_name": "valid trade name",
+            "cnpj": "123",
+        },
+    )
+
+    assert response.status_code == HTTPStatus.UNPROCESSABLE_ENTITY
+
+
+def test_list_companies_invalid_filter_name(client, token):
+    response = client.get(
+        "/companies/?name=ab",
+        headers={"Authorization": f"Bearer {token}"},
+    )
+
+    assert response.status_code == HTTPStatus.UNPROCESSABLE_ENTITY
+
+
 @pytest.mark.asyncio
 async def test_list_companies_should_return_5_companies(session, client, user, token):
     expected_companies = 5
@@ -141,16 +192,6 @@ async def test_list_companies_filter_combined_should_return_5_companies(
     assert len(response.json()["companies"]) == expected_companies
 
 
-def test_patch_company_error(client, token):
-    response = client.patch(
-        "/companies/10",
-        json={},
-        headers={"Authorization": f"Bearer {token}"},
-    )
-    assert response.status_code == HTTPStatus.NOT_FOUND
-    assert response.json() == {"detail": "Company not found."}
-
-
 @pytest.mark.asyncio
 async def test_patch_company(session, client, user, token):
     company = CompanyFactory(user_id=user.id)
@@ -165,6 +206,31 @@ async def test_patch_company(session, client, user, token):
     )
     assert response.status_code == HTTPStatus.OK
     assert response.json()["name"] == "teste name"
+
+
+def test_patch_company_error(client, token):
+    response = client.patch(
+        "/companies/10",
+        json={},
+        headers={"Authorization": f"Bearer {token}"},
+    )
+    assert response.status_code == HTTPStatus.NOT_FOUND
+    assert response.json() == {"detail": "Company not found."}
+
+
+@pytest.mark.asyncio
+async def test_patch_company_invalid_name(session, client, user, token):
+    company = CompanyFactory(user_id=user.id)
+    session.add(company)
+    await session.commit()
+
+    response = client.patch(
+        f"/companies/{company.id}",
+        json={"name": "ab"},
+        headers={"Authorization": f"Bearer {token}"},
+    )
+
+    assert response.status_code == HTTPStatus.UNPROCESSABLE_ENTITY
 
 
 @pytest.mark.asyncio

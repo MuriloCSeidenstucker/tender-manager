@@ -1,6 +1,6 @@
 from http import HTTPStatus
 
-from src.presentation.schemas import UserPublicSchema
+from src.schemas import UserPublicSchema
 
 
 def test_create_user(client):
