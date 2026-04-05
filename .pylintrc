@@ -9,3 +9,4 @@ disable=
     R0913, # too-many-arguments
     W0621, # redefined-outer-name
     W0718, # broad-exception-caught
+    W4904, # Using-deprecated-class
