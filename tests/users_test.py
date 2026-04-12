@@ -33,13 +33,12 @@ def test_read_users_with_users(client, user):
 
 
 def test_update_user(client, user, token):
-    response = client.put(
+    response = client.patch(
         f"/users/{user.id}",
         headers={"Authorization": f"Bearer {token}"},
         json={
             "username": "bob",
             "email": "bob@example.com",
-            "password": "mynewpassword",
         },
     )
     assert response.status_code == HTTPStatus.OK
@@ -60,13 +59,12 @@ def test_update_integrity_error(client, user, token):
         },
     )
 
-    response_update = client.put(
+    response_update = client.patch(
         f"/users/{user.id}",
         headers={"Authorization": f"Bearer {token}"},
         json={
             "username": "fausto",
             "email": "bob@example.com",
-            "password": "mynewpassword",
         },
     )
 
@@ -75,17 +73,42 @@ def test_update_integrity_error(client, user, token):
 
 
 def test_update_user_with_wrong_user(client, other_user, token):
-    response = client.put(
+    response = client.patch(
         f"/users/{other_user.id}",
         headers={"Authorization": f"Bearer {token}"},
         json={
             "username": "bob",
             "email": "bob@example.com",
-            "password": "mynewpassword",
         },
     )
     assert response.status_code == HTTPStatus.FORBIDDEN
     assert response.json() == {"detail": "Not enough permissions"}
+
+
+def test_update_password(client, user, token):
+    response = client.patch(
+        f"/users/{user.id}/password",
+        headers={"Authorization": f"Bearer {token}"},
+        json={
+            "current_password": user.clean_password,
+            "new_password": "mynewpassword",
+        },
+    )
+    assert response.status_code == HTTPStatus.OK
+    assert response.json() == {"message": "Password updated successfully"}
+
+
+def test_update_password_wrong_current(client, user, token):
+    response = client.patch(
+        f"/users/{user.id}/password",
+        headers={"Authorization": f"Bearer {token}"},
+        json={
+            "current_password": "wrongpassword",
+            "new_password": "mynewpassword",
+        },
+    )
+    assert response.status_code == HTTPStatus.UNPROCESSABLE_ENTITY
+    assert response.json() == {"detail": "Invalid current password"}
 
 
 def test_delete_user(client, user, token):

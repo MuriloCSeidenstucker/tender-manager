@@ -6,7 +6,7 @@ from sqlalchemy.exc import IntegrityError
 from sqlalchemy.ext.asyncio import AsyncSession
 
 from src.infra.entities import UserEntity
-from src.security import get_password_hash
+from src.security import get_password_hash, verify_password
 
 
 class UserService:
@@ -59,11 +59,12 @@ class UserService:
                 status_code=HTTPStatus.FORBIDDEN, detail="Not enough permissions"
             )
 
-        try:
-            current_user.username = data.username
-            current_user.password = get_password_hash(data.password)
-            current_user.email = data.email
+        update_data = data.model_dump(exclude_unset=True)
 
+        for key, value in update_data.items():
+            setattr(current_user, key, value)
+
+        try:
             await self.session.commit()
             await self.session.refresh(current_user)
 
@@ -74,6 +75,22 @@ class UserService:
                 status_code=HTTPStatus.CONFLICT,
                 detail="Username or Email already exists",
             ) from e
+
+    async def update_password(self, user_id: int, current_user: UserEntity, data):
+        if current_user.id != user_id:
+            raise HTTPException(
+                status_code=HTTPStatus.FORBIDDEN, detail="Not enough permissions"
+            )
+
+        if not verify_password(data.current_password, current_user.password):
+            raise HTTPException(
+                status_code=HTTPStatus.UNPROCESSABLE_ENTITY,
+                detail="Invalid current password",
+            )
+
+        current_user.password = get_password_hash(data.new_password)
+        await self.session.commit()
+        await self.session.refresh(current_user)
 
     async def delete(self, user_id: int, current_user: UserEntity):
         if current_user.id != user_id:

@@ -27,13 +27,12 @@ def test_token_expired_after_time(client, user):
         token = response.json()["access_token"]
 
     with freeze_time("2023-07-14 12:31:00"):
-        response = client.put(
+        response = client.patch(
             f"/users/{user.id}",
             headers={"Authorization": f"Bearer {token}"},
             json={
                 "username": "wrongwrong",
                 "email": "wrong@wrong.com",
-                "password": "wrong",
             },
         )
         assert response.status_code == HTTPStatus.UNAUTHORIZED

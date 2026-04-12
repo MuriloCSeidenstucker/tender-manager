@@ -7,7 +7,13 @@ from sqlalchemy.ext.asyncio import AsyncSession
 from src.infra.entities import UserEntity
 from src.infra.settings.database import get_session
 from src.schemas.common import FilterPageSchema, MessageSchema
-from src.schemas.user import UserCreateSchema, UserListSchema, UserPublicSchema
+from src.schemas.user import (
+    UserCreateSchema,
+    UserListSchema,
+    UserPasswordUpdateSchema,
+    UserPublicSchema,
+    UserUpdateSchema,
+)
 from src.security import get_current_user
 from src.services.user_service import UserService
 
@@ -29,14 +35,25 @@ async def read_users(
     return {"users": users}
 
 
-@router.put("/{user_id}", response_model=UserPublicSchema)
+@router.patch("/{user_id}", response_model=UserPublicSchema)
 async def update_user(
     user_id: int,
-    user: UserCreateSchema,
+    user: UserUpdateSchema,
     session: Session,
     current_user: CurrentUser,
 ):
     return await UserService(session).update(user_id, current_user, user)
+
+
+@router.patch("/{user_id}/password", response_model=MessageSchema)
+async def update_password(
+    user_id: int,
+    passwords: UserPasswordUpdateSchema,
+    session: Session,
+    current_user: CurrentUser,
+):
+    await UserService(session).update_password(user_id, current_user, passwords)
+    return {"message": "Password updated successfully"}
 
 
 @router.delete("/{user_id}", response_model=MessageSchema)
