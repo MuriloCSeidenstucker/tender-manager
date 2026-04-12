@@ -5,7 +5,7 @@ from http import HTTPStatus
 from fastapi import FastAPI
 from fastapi.middleware.cors import CORSMiddleware
 
-from src.routers import auth, companies, tenders, users
+from src.routers import auth, companies, dashboard, tenders, users
 from src.schemas.common import MessageSchema
 
 if sys.platform == "win32":
@@ -25,6 +25,7 @@ app.include_router(users.router)
 app.include_router(auth.router)
 app.include_router(companies.router)
 app.include_router(tenders.router)
+app.include_router(dashboard.router)
 
 
 @app.get("/", status_code=HTTPStatus.OK, response_model=MessageSchema)
