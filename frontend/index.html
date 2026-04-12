@@ -1,0 +1,52 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Entrar — Tender Manager</title>
+  <meta name="description" content="Acesse o Tender Manager para gerenciar suas licitações com inteligência." />
+  <link rel="preconnect" href="https://fonts.googleapis.com" />
+  <link href="https://fonts.googleapis.com/css2?family=Outfit:wght@400;500;600;700&display=swap" rel="stylesheet" />
+  <link rel="stylesheet" href="./css/style.css" />
+</head>
+<body class="login-page">
+
+  <div class="login-card">
+    <div class="login-logo">
+      <span class="logo-icon">📋</span>
+      <h1>Tender Manager</h1>
+      <p>Gestão inteligente de licitações</p>
+    </div>
+
+    <form id="login-form" novalidate>
+      <div class="form-group">
+        <label for="email">E-mail</label>
+        <input
+          id="email"
+          type="email"
+          placeholder="seu@email.com"
+          autocomplete="email"
+          required
+        />
+      </div>
+
+      <div class="form-group">
+        <label for="password">Senha</label>
+        <input
+          id="password"
+          type="password"
+          placeholder="••••••••"
+          autocomplete="current-password"
+          required
+        />
+      </div>
+
+      <button id="submit-btn" type="submit" class="btn-primary">Entrar</button>
+
+      <p id="error-msg" class="error-msg hidden"></p>
+    </form>
+  </div>
+
+  <script type="module" src="./js/login.js"></script>
+</body>
+</html>
