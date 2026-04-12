@@ -9,7 +9,7 @@ from src.infra.entities import (
     TenderModality,
     TenderStatus,
 )
-from src.schemas import FilterPageSchema
+from src.schemas.common import FilterPageSchema
 
 
 class TenderBaseSchema(BaseModel):

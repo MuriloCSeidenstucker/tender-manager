@@ -6,13 +6,13 @@ from sqlalchemy.ext.asyncio import AsyncSession
 
 from src.infra.entities import UserEntity
 from src.infra.settings.database import get_session
-from src.schemas import (
+from src.schemas.common import MessageSchema
+from src.schemas.company import (
     CompanyCreateSchema,
     CompanyListSchema,
     CompanyPublicSchema,
     CompanyUpdateSchema,
     FilterCompanySchema,
-    MessageSchema,
 )
 from src.security import get_current_user
 from src.services.company_service import CompanyService

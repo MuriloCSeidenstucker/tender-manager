@@ -1,6 +1,6 @@
 from pydantic import BaseModel, Field
 
-from src.schemas import FilterPageSchema
+from src.schemas.common import FilterPageSchema
 
 
 class CompanyBaseSchema(BaseModel):

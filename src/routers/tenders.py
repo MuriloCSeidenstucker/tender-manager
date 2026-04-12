@@ -5,9 +5,9 @@ from sqlalchemy.ext.asyncio import AsyncSession
 
 from src.infra.entities import UserEntity
 from src.infra.settings.database import get_session
-from src.schemas import (
+from src.schemas.common import MessageSchema
+from src.schemas.tender import (
     FilterTenderSchema,
-    MessageSchema,
     TenderCreateSchema,
     TenderListSchema,
     TenderPublicSchema,
