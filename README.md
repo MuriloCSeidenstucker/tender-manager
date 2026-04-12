@@ -12,21 +12,21 @@ Tender Manager é um MVP de estudo voltado a portfólio para gerenciamento de li
 
 ## Sumário
 
-- [Visão Geral](#visao-geral)
+- [Visão Geral](#visão-geral)
 - [Funcionalidades](#funcionalidades)
 - [Stack Utilizada](#stack-utilizada)
 - [Estrutura do Projeto](#estrutura-do-projeto)
 - [Como Fazer um Fork e Testar](#como-fazer-um-fork-e-testar)
-- [Pré-requisitos](#pre-requisitos)
-- [Configuração do Ambiente](#configuracao-do-ambiente)
+- [Pré-requisitos](#pré-requisitos)
+- [Configuração do Ambiente](#configuração-do-ambiente)
 - [Executando com Docker](#executando-com-docker)
 - [Executando Localmente com Poetry](#executando-localmente-com-poetry)
 - [Como Testar o Frontend](#como-testar-o-frontend)
-- [Como Validar que a Aplicação Funcionou](#como-validar-que-a-aplicacao-funcionou)
+- [Como Validar que a Aplicação Funcionou](#como-validar-que-a-aplicação-funcionou)
 - [Rodando os Testes](#rodando-os-testes)
-- [Variáveis de Ambiente](#variaveis-de-ambiente)
+- [Variáveis de Ambiente](#variáveis-de-ambiente)
 - [Pipeline e Qualidade](#pipeline-e-qualidade)
-- [Licença](#licenca)
+- [Licença](#licença)
 
 ## Visão Geral
 
