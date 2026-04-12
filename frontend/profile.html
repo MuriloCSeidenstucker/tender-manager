@@ -1,0 +1,177 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Meu Perfil — Tender Manager</title>
+  <meta name="description" content="Gerencie seus dados de acesso no Tender Manager." />
+  <link rel="preconnect" href="https://fonts.googleapis.com" />
+  <link href="https://fonts.googleapis.com/css2?family=Outfit:wght@400;500;600;700&display=swap" rel="stylesheet" />
+  <link rel="stylesheet" href="./css/style.css" />
+</head>
+<body>
+
+  <div class="app-layout">
+
+    <!-- ── Sidebar ── -->
+    <aside class="sidebar">
+      <div class="sidebar-logo">
+        <span class="logo-icon">📋</span>
+        <div>
+          <h2>Tender Manager</h2>
+          <span>MVP v1.0</span>
+        </div>
+      </div>
+
+      <p class="nav-label">Menu</p>
+
+      <a href="./dashboard.html" class="nav-item">
+        <span class="nav-icon">📊</span> Dashboard
+      </a>
+      <a href="./companies.html" class="nav-item">
+        <span class="nav-icon">🏢</span> Empresas
+      </a>
+      <a href="./tenders.html" class="nav-item">
+        <span class="nav-icon">📄</span> Licitações
+      </a>
+
+      <div class="sidebar-spacer"></div>
+
+      <a href="./profile.html" class="nav-item active">
+        <span class="nav-icon">👤</span> Meu Perfil
+      </a>
+
+      <div class="sidebar-user">
+        <div class="user-avatar" id="user-initial">U</div>
+        <div class="user-info">
+          <div class="user-name" id="username-display">Carregando...</div>
+          <div class="user-email" id="email-display">—</div>
+        </div>
+        <button id="logout-btn" class="btn-logout" title="Sair">⏏</button>
+      </div>
+    </aside>
+
+    <!-- ── Main ── -->
+    <main class="main-content">
+      <div class="page-header">
+        <h1>Meu Perfil</h1>
+        <p>Gerencie seus dados de acesso e preferências de conta.</p>
+      </div>
+
+      <div class="profile-sections">
+
+        <!-- ── Seção: Dados do Perfil ── -->
+        <section class="profile-card">
+          <div class="profile-card-header">
+            <div class="profile-card-icon">👤</div>
+            <div>
+              <h2>Informações da Conta</h2>
+              <p>Atualize seu nome de usuário e e-mail.</p>
+            </div>
+          </div>
+
+          <form id="profile-form" novalidate>
+            <div class="form-group">
+              <label for="profile-username">Nome de usuário</label>
+              <input id="profile-username" type="text" minlength="3" maxlength="50"
+                placeholder="seunome" autocomplete="username" />
+            </div>
+            <div class="form-group">
+              <label for="profile-email">E-mail</label>
+              <input id="profile-email" type="email" placeholder="seu@email.com"
+                autocomplete="email" />
+            </div>
+
+            <p id="profile-error" class="error-msg hidden"></p>
+            <p id="profile-success" class="success-msg hidden">Dados atualizados com sucesso!</p>
+
+            <div class="form-actions">
+              <button type="submit" id="btn-save-profile" class="btn-primary btn-inline">
+                Salvar alterações
+              </button>
+            </div>
+          </form>
+        </section>
+
+        <!-- ── Seção: Trocar Senha ── -->
+        <section class="profile-card">
+          <div class="profile-card-header">
+            <div class="profile-card-icon">🔒</div>
+            <div>
+              <h2>Alterar Senha</h2>
+              <p>Confirme a senha atual para definir uma nova.</p>
+            </div>
+          </div>
+
+          <form id="password-form" novalidate>
+            <div class="form-group">
+              <label for="current-password">Senha atual</label>
+              <input id="current-password" type="password" placeholder="••••••••"
+                autocomplete="current-password" minlength="6" required />
+            </div>
+            <div class="form-group">
+              <label for="new-password">Nova senha</label>
+              <input id="new-password" type="password" placeholder="••••••••"
+                autocomplete="new-password" minlength="6" required />
+            </div>
+            <div class="form-group">
+              <label for="confirm-password">Confirmar nova senha</label>
+              <input id="confirm-password" type="password" placeholder="••••••••"
+                autocomplete="new-password" minlength="6" required />
+            </div>
+
+            <p id="password-error" class="error-msg hidden"></p>
+            <p id="password-success" class="success-msg hidden">Senha alterada com sucesso!</p>
+
+            <div class="form-actions">
+              <button type="submit" id="btn-save-password" class="btn-primary btn-inline">
+                Alterar senha
+              </button>
+            </div>
+          </form>
+        </section>
+
+        <!-- ── Seção: Zona de Perigo ── -->
+        <section class="profile-card danger-zone">
+          <div class="profile-card-header">
+            <div class="profile-card-icon">⚠️</div>
+            <div>
+              <h2>Zona de Perigo</h2>
+              <p>Ações irreversíveis. Prossiga com cautela.</p>
+            </div>
+          </div>
+
+          <div class="danger-action">
+            <div class="danger-action-text">
+              <strong>Excluir minha conta</strong>
+              <span>Remove permanentemente seu usuário e todos os dados associados, incluindo empresas e licitações.</span>
+            </div>
+            <button id="btn-delete-account" class="btn-danger">Excluir conta</button>
+          </div>
+        </section>
+
+      </div>
+    </main>
+  </div>
+
+  <!-- ── Modal: Confirmar Exclusão de Conta ── -->
+  <div id="delete-overlay" class="modal-overlay hidden">
+    <div class="modal-card modal-card-sm" role="dialog" aria-modal="true">
+      <div class="modal-header">
+        <h2>Excluir conta</h2>
+        <button id="delete-modal-close" class="btn-modal-close">✕</button>
+      </div>
+      <p class="confirm-text">
+        Tem certeza? Esta ação é <strong>irreversível</strong>. Todos os seus dados,
+        empresas e licitações serão permanentemente excluídos.
+      </p>
+      <div class="modal-actions">
+        <button id="btn-cancel-delete" class="btn-secondary">Cancelar</button>
+        <button id="btn-confirm-delete" class="btn-danger">Sim, excluir minha conta</button>
+      </div>
+    </div>
+  </div>
+
+  <script type="module" src="./js/profile.js"></script>
+</body>
+</html>
