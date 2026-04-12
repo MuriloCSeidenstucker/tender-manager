@@ -652,3 +652,110 @@ body {
   text-transform: none;
   letter-spacing: 0;
 }
+
+/* ────────── FORM EXTRAS ────────── */
+.form-grid-2 {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 0 1rem;
+}
+
+.form-group textarea {
+  width: 100%;
+  background: var(--bg-card);
+  border: 1px solid var(--border);
+  border-radius: var(--radius-sm);
+  color: var(--text-primary);
+  font-family: inherit;
+  font-size: 0.95rem;
+  padding: 0.7rem 1rem;
+  resize: vertical;
+  outline: none;
+  transition: border-color 0.2s, box-shadow 0.2s;
+}
+
+.form-group select {
+  width: 100%;
+  background: var(--bg-card);
+  border: 1px solid var(--border);
+  border-radius: var(--radius-sm);
+  color: var(--text-primary);
+  font-family: inherit;
+  font-size: 0.95rem;
+  padding: 0.7rem 1rem;
+  outline: none;
+  cursor: pointer;
+  transition: border-color 0.2s, box-shadow 0.2s;
+  appearance: none;
+  background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='12' height='8' fill='none'%3E%3Cpath d='M1 1l5 5 5-5' stroke='%238b92b8' stroke-width='1.5' stroke-linecap='round'/%3E%3C/svg%3E");
+  background-repeat: no-repeat;
+  background-position: right 0.9rem center;
+  padding-right: 2.2rem;
+}
+
+.form-group select:focus,
+.form-group textarea:focus {
+  border-color: var(--accent);
+  box-shadow: 0 0 0 3px var(--accent-glow);
+}
+
+.modal-card-lg { max-width: 680px; }
+
+/* ────────── COMPANY SELECTOR BAR ────────── */
+.company-selector-bar {
+  display: flex;
+  align-items: center;
+  gap: 0.75rem;
+  margin-top: 1rem;
+  flex-wrap: wrap;
+}
+
+.company-selector-bar label {
+  font-size: 0.85rem;
+  font-weight: 600;
+  color: var(--text-secondary);
+  white-space: nowrap;
+}
+
+.company-selector-bar select {
+  background: var(--bg-card);
+  border: 1px solid var(--border);
+  border-radius: var(--radius-sm);
+  color: var(--text-primary);
+  font-family: inherit;
+  font-size: 0.9rem;
+  padding: 0.45rem 2rem 0.45rem 0.85rem;
+  outline: none;
+  cursor: pointer;
+  min-width: 240px;
+  max-width: 400px;
+  appearance: none;
+  background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='12' height='8' fill='none'%3E%3Cpath d='M1 1l5 5 5-5' stroke='%238b92b8' stroke-width='1.5' stroke-linecap='round'/%3E%3C/svg%3E");
+  background-repeat: no-repeat;
+  background-position: right 0.7rem center;
+  transition: border-color 0.2s;
+}
+
+.company-selector-bar select:focus { border-color: var(--accent); outline: none; }
+
+/* ────────── BADGES ────────── */
+.badge {
+  display: inline-block;
+  font-size: 0.72rem;
+  font-weight: 700;
+  padding: 0.2rem 0.55rem;
+  border-radius: 999px;
+  text-transform: uppercase;
+  letter-spacing: 0.04em;
+}
+
+.badge-blue   { background: rgba(99, 179, 237, 0.15); color: #90cdf4; }
+.badge-green  { background: rgba(34, 211, 160, 0.15); color: #6ee7b7; }
+.badge-red    { background: rgba(239, 68, 68, 0.15);  color: #fca5a5; }
+.badge-yellow { background: rgba(245,158, 11, 0.15);  color: #fcd34d; }
+.badge-purple { background: rgba(167,139,250, 0.15);  color: #c4b5fd; }
+
+/* ────────── RESULT CLASSES ────────── */
+.result-won     { color: var(--success); font-weight: 600; }
+.result-lost    { color: var(--danger);  font-weight: 600; }
+.result-pending { color: var(--text-muted); }
