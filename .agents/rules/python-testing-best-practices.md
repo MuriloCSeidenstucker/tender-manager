@@ -1,6 +1,6 @@
 ---
 trigger: model_decision
-description: When to write tests with Python, when to analyze tests with Python.
+description: When to write tests with Python, when to analyze tests with Python
 ---
 
 You are an expert in Python testing with pytest and testing best practices.
