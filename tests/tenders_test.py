@@ -34,7 +34,7 @@ async def test_create_tender_success(session, client, user, token):
     assert "id" in data
     assert data["tender_number"] == 123
     assert data["status"] == "monitoring"
-    assert data["participation_result"] is None
+    assert data["participation_result"] == "pending"
     assert data["awarded_value"] is None
 
 

@@ -6,7 +6,7 @@ import pytest
 from fastapi import HTTPException
 from sqlalchemy.exc import IntegrityError
 
-from src.infra.entities import ParticipationResult
+from src.infra.entities import ParticipationResult, TenderStatus
 from src.services.tender_service import TenderService
 from tests.factories import CompanyFactory, TenderFactory
 
@@ -108,6 +108,8 @@ async def test_update_tender_duplicate_should_raise_conflict(session, user):
             "tender_number": 123,
             "tender_year": 2026,
             "public_body_name": "City Hall",
+            "modality": "trading_session",
+            "format": "electronic",
         }
     )
 
@@ -169,6 +171,7 @@ async def test_create_tender_integrity_error(session, user):
         tender_year=2026,
         public_body_name="City Hall",
         modality="trading_session",
+        format="electronic",
         model_dump=lambda: {
             "tender_number": 123,
             "tender_year": 2026,
@@ -243,3 +246,198 @@ async def test_list_tenders_with_filters(session, user):
     result = await service.list(company.id, filters)
     assert len(result) == 1
     assert result[0].id == tender.id
+
+
+@pytest.mark.parametrize("status", list(TenderStatus))
+@pytest.mark.asyncio
+async def test_create_tender_with_different_statuses(session, user, status):
+    service = TenderService(session)
+    company = CompanyFactory(user_id=user.id)
+    session.add(company)
+    await session.commit()
+
+    data = SimpleNamespace(
+        tender_number=123,
+        tender_year=2026,
+        object_description="Valid object description",
+        public_body_name="City Hall",
+        modality="trading_session",
+        format="electronic",
+        session_date="2026-01-01T10:00:00",
+        status=status,
+        model_dump=lambda: {
+            "tender_number": 123,
+            "tender_year": 2026,
+            "object_description": "Valid object description",
+            "public_body_name": "City Hall",
+            "modality": "trading_session",
+            "format": "electronic",
+            "session_date": "2026-01-01T10:00:00",
+            "status": status,
+        },
+    )
+
+    created = await service.create(company.id, data)
+
+    assert created.status == status
+    assert created.company_id == company.id
+
+
+@pytest.mark.asyncio
+async def test_create_tender_won_without_positive_awarded_value_should_raise(
+    session,
+    user,
+):
+    service = TenderService(session)
+    company = CompanyFactory(user_id=user.id)
+    session.add(company)
+    await session.commit()
+
+    data = SimpleNamespace(
+        tender_number=789,
+        tender_year=2026,
+        object_description="Valid object description",
+        public_body_name="City Hall",
+        modality="trading_session",
+        format="electronic",
+        session_date="2026-01-01T10:00:00",
+        status=TenderStatus.FINISHED,
+        participation_result=ParticipationResult.WON,
+        awarded_value=0,
+        model_dump=lambda: {
+            "tender_number": 789,
+            "tender_year": 2026,
+            "object_description": "Valid object description",
+            "public_body_name": "City Hall",
+            "modality": "trading_session",
+            "format": "electronic",
+            "session_date": "2026-01-01T10:00:00",
+            "status": TenderStatus.FINISHED,
+            "participation_result": ParticipationResult.WON,
+            "awarded_value": 0,
+        },
+    )
+
+    with pytest.raises(HTTPException) as exc:
+        await service.create(company.id, data)
+
+    assert exc.value.status_code == HTTPStatus.UNPROCESSABLE_ENTITY
+
+
+@pytest.mark.asyncio
+async def test_create_tender_won_with_positive_awarded_value_should_succeed(
+    session,
+    user,
+):
+    service = TenderService(session)
+    company = CompanyFactory(user_id=user.id)
+    session.add(company)
+    await session.commit()
+
+    data = SimpleNamespace(
+        tender_number=999,
+        tender_year=2026,
+        object_description="Valid object description",
+        public_body_name="City Hall",
+        modality="trading_session",
+        format="electronic",
+        session_date="2026-01-01T10:00:00",
+        status=TenderStatus.FINISHED,
+        participation_result=ParticipationResult.WON,
+        awarded_value=1500.50,
+        model_dump=lambda: {
+            "tender_number": 999,
+            "tender_year": 2026,
+            "object_description": "Valid object description",
+            "public_body_name": "City Hall",
+            "modality": "trading_session",
+            "format": "electronic",
+            "session_date": "2026-01-01T10:00:00",
+            "status": TenderStatus.FINISHED,
+            "participation_result": ParticipationResult.WON,
+            "awarded_value": 1500.50,
+        },
+    )
+
+    created = await service.create(company.id, data)
+    assert created.participation_result == ParticipationResult.WON
+    assert float(created.awarded_value) == 1500.50
+
+
+@pytest.mark.asyncio
+async def test_should_raise_conflict_error_when_checking_uniqueness_for_existing_tender(
+    session, user
+):
+    service = TenderService(session)
+    company = CompanyFactory(user_id=user.id)
+    session.add(company)
+    await session.commit()
+
+    existing = TenderFactory(
+        company_id=company.id,
+        tender_number=123,
+        tender_year=2026,
+        public_body_name="City Hall",
+        modality="trading_session",
+        format="electronic",
+    )
+    session.add(existing)
+    await session.commit()
+
+    data = SimpleNamespace(
+        tender_number=123,
+        tender_year=2026,
+        public_body_name="City Hall",
+        modality="trading_session",
+        format="electronic",
+    )
+
+    with pytest.raises(HTTPException) as exc:
+        await service._check_uniqueness(company_id=company.id, data=data)
+
+    assert exc.value.status_code == HTTPStatus.CONFLICT
+
+
+@pytest.mark.parametrize(
+    "field_to_change,new_value",
+    [
+        ("tender_number", 999),
+        ("tender_year", 2027),
+        ("public_body_name", "Different City Hall"),
+        ("modality", "auction"),
+        ("format", "in_person"),
+    ],
+)
+@pytest.mark.asyncio
+async def test_should_pass_uniqueness_check_when_at_least_one_key_field_is_different(
+    session, user, field_to_change, new_value
+):
+    service = TenderService(session)
+    company = CompanyFactory(user_id=user.id)
+    session.add(company)
+    await session.commit()
+
+    existing = TenderFactory(
+        company_id=company.id,
+        tender_number=123,
+        tender_year=2026,
+        public_body_name="City Hall",
+        modality="trading_session",
+        format="electronic",
+    )
+    session.add(existing)
+    await session.commit()
+
+    data_args = {
+        "tender_number": 123,
+        "tender_year": 2026,
+        "public_body_name": "City Hall",
+        "modality": "trading_session",
+        "format": "electronic",
+    }
+    data_args[field_to_change] = new_value
+
+    data = SimpleNamespace(**data_args)
+
+    # Should not raise any exception
+    await service._check_uniqueness(company_id=company.id, data=data)

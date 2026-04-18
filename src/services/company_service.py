@@ -87,13 +87,26 @@ class CompanyService:
             setattr(company, key, value)
 
         self.session.add(company)
-        await self.session.commit()
-        await self.session.refresh(company)
+
+        try:
+            await self.session.commit()
+            await self.session.refresh(company)
+        except IntegrityError as e:
+            raise HTTPException(
+                status_code=HTTPStatus.CONFLICT,
+                detail="A company with these details already exists or database integrity error.",
+            ) from e
 
         return company
 
     async def delete(self, company_id: int, user_id: int):
         company = await self.get_owned(company_id, user_id)
 
-        await self.session.delete(company)
-        await self.session.commit()
+        try:
+            await self.session.delete(company)
+            await self.session.commit()
+        except IntegrityError as e:
+            raise HTTPException(
+                status_code=HTTPStatus.CONFLICT,
+                detail="Cannot delete company. It may have associated records such as tenders.",
+            ) from e

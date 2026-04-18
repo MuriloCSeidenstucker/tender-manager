@@ -296,15 +296,22 @@ tenderForm.addEventListener("submit", async (e) => {
     object_description: descInput.value.trim(),
     modality:           modalitySelect.value,
     format:             formatSelect.value,
-    session_date:       new Date(sessionDateInput.value).toISOString(),
+    status:             statusSelect.value,
   };
 
-  // On update, also include status / result / awarded
-  if (id) {
-    body.status               = statusSelect.value;
-    body.participation_result = resultSelect.value;
-    const awarded = parseFloat(awardedInput.value);
-    if (!isNaN(awarded)) body.awarded_value = awarded;
+  // Regra: Somente enviar data de sessão se o usuário a selecionou
+  if (sessionDateInput.value) {
+      body.session_date = new Date(sessionDateInput.value).toISOString();
+  }
+
+  // Regra: Somente enviar result se não for vazio
+  if (resultSelect.value) {
+      body.participation_result = resultSelect.value;
+  }
+
+  const awardedValue = parseFloat(awardedInput.value);
+  if (!isNaN(awardedValue)) {
+    body.awarded_value = awardedValue;
   }
 
   btnSave.disabled = true;

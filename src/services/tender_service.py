@@ -1,5 +1,3 @@
-# pylint: disable=R0917:too-many-positional-arguments
-
 from http import HTTPStatus
 
 from fastapi import HTTPException
@@ -12,6 +10,7 @@ from src.infra.entities import (
     TenderEntity,
     TenderStatus,
 )
+from src.schemas.tender import TenderCreateSchema, TenderUpdateSchema
 
 
 class TenderService:
@@ -51,45 +50,41 @@ class TenderService:
     async def _check_uniqueness(
         self,
         company_id: int,
-        tender_number: int,
-        tender_year: int,
-        public_body_name: str,
-        modality: str,
-        exclude_id: int | None = None,
+        data: TenderCreateSchema | TenderUpdateSchema,
+        exclude_tender_id: int | None = None,
     ):
         query = select(TenderEntity).where(
             TenderEntity.company_id == company_id,
-            TenderEntity.tender_number == tender_number,
-            TenderEntity.tender_year == tender_year,
-            TenderEntity.public_body_name == public_body_name,
-            TenderEntity.modality == modality,
+            TenderEntity.tender_number == data.tender_number,
+            TenderEntity.tender_year == data.tender_year,
+            TenderEntity.public_body_name == data.public_body_name,
+            TenderEntity.modality == data.modality,
+            TenderEntity.format == data.format,
         )
 
-        if exclude_id:
-            query = query.where(TenderEntity.id != exclude_id)
+        if exclude_tender_id is not None:
+            query = query.where(TenderEntity.id != exclude_tender_id)
 
-        existing = await self.session.scalar(query)
-
-        if existing:
+        existing_tender = await self.session.scalar(query)
+        if existing_tender:
             raise HTTPException(
                 status_code=HTTPStatus.CONFLICT,
-                detail="Tender already exists for this company, public body, and modality.",
+                detail="Uma licitação com esses dados já está cadastrada para esta empresa.",
             )
 
     async def create(self, company_id: int, data):
-        await self._check_uniqueness(
-            company_id=company_id,
-            tender_number=data.tender_number,
-            tender_year=data.tender_year,
-            public_body_name=data.public_body_name,
-            modality=data.modality,
-        )
+        await self._check_uniqueness(company_id=company_id, data=data)
+
+        tender_data = data.model_dump()
+        await self._validate_business_rules(tender_data)
+
+        status = tender_data.pop("status", None) or TenderStatus.MONITORING
+        tender_data.setdefault("participation_result", None)
+        tender_data.setdefault("awarded_value", None)
 
         tender = TenderEntity(
-            **data.model_dump(),
-            status=TenderStatus.MONITORING,
-            participation_result=None,
-            awarded_value=None,
+            **tender_data,
+            status=status,
             company_id=company_id,
         )
 
@@ -148,7 +143,7 @@ class TenderService:
 
         return result.all()
 
-    async def update(self, tender_id: int, company_id: int, data):
+    async def update(self, tender_id: int, company_id: int, data: TenderUpdateSchema):
         tender = await self._get_owned(tender_id, company_id)
 
         update_data = data.model_dump(exclude_unset=True)
@@ -158,6 +153,7 @@ class TenderService:
             "public_body_name", tender.public_body_name
         )
         new_modality = update_data.get("modality", tender.modality)
+        new_format = update_data.get("format", tender.format)
 
         await self._validate_business_rules(
             {
@@ -173,14 +169,18 @@ class TenderService:
             or new_tender_year != tender.tender_year
             or new_public_body_name != tender.public_body_name
             or new_modality != tender.modality
+            or new_format != tender.format
         ):
-            await self._check_uniqueness(
-                company_id=company_id,
+            # Create a synthetic data object to pass to _check_uniqueness
+            check_data = TenderUpdateSchema(
                 tender_number=new_tender_number,
                 tender_year=new_tender_year,
                 public_body_name=new_public_body_name,
                 modality=new_modality,
-                exclude_id=tender.id,
+                format=new_format,
+            )
+            await self._check_uniqueness(
+                company_id=company_id, data=check_data, exclude_tender_id=tender.id
             )
 
         for key, value in update_data.items():
@@ -202,5 +202,11 @@ class TenderService:
     async def delete(self, tender_id: int, company_id: int):
         tender = await self._get_owned(tender_id, company_id)
 
-        await self.session.delete(tender)
-        await self.session.commit()
+        try:
+            await self.session.delete(tender)
+            await self.session.commit()
+        except IntegrityError as e:
+            raise HTTPException(
+                status_code=HTTPStatus.CONFLICT,
+                detail="Cannot delete tender due to database integrity constraints.",
+            ) from e
