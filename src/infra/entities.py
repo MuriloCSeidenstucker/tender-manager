@@ -102,7 +102,7 @@ class TenderEntity:
         nullable=True
     )
     awarded_value: Mapped[Decimal | None] = mapped_column(nullable=True)
-    session_date: Mapped[datetime]
+    session_date: Mapped[datetime | None] = mapped_column(nullable=True)
     created_at: Mapped[datetime] = mapped_column(init=False, server_default=func.now())
 
     company_id: Mapped[int] = mapped_column(ForeignKey("companies.id"))

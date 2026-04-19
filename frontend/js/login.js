@@ -7,10 +7,10 @@ if (isAuthenticated()) {
 const API_BASE = "http://localhost:8000";
 
 // ── Tab switching ─────────────────────────────────────────────────────
-const tabLogin    = document.getElementById("tab-login");
+const tabLogin = document.getElementById("tab-login");
 const tabRegister = document.getElementById("tab-register");
-const panelLogin  = document.getElementById("panel-login");
-const panelReg    = document.getElementById("panel-register");
+const panelLogin = document.getElementById("panel-login");
+const panelReg = document.getElementById("panel-register");
 
 function showLogin() {
   panelLogin.classList.remove("hidden");
@@ -36,10 +36,10 @@ tabLogin.addEventListener("click", showLogin);
 tabRegister.addEventListener("click", showRegister);
 
 // ── Login ─────────────────────────────────────────────────────────────
-const loginForm  = document.getElementById("login-form");
+const loginForm = document.getElementById("login-form");
 const loginEmail = document.getElementById("login-email");
-const loginPass  = document.getElementById("login-password");
-const loginBtn   = document.getElementById("login-submit-btn");
+const loginPass = document.getElementById("login-password");
+const loginBtn = document.getElementById("login-submit-btn");
 const loginError = document.getElementById("login-error");
 
 loginForm.addEventListener("submit", async (e) => {
@@ -77,12 +77,12 @@ loginForm.addEventListener("submit", async (e) => {
 });
 
 // ── Register ──────────────────────────────────────────────────────────
-const regForm    = document.getElementById("register-form");
-const regUser    = document.getElementById("reg-username");
-const regEmail   = document.getElementById("reg-email");
-const regPass    = document.getElementById("reg-password");
-const regBtn     = document.getElementById("register-submit-btn");
-const regError   = document.getElementById("register-error");
+const regForm = document.getElementById("register-form");
+const regUser = document.getElementById("reg-username");
+const regEmail = document.getElementById("reg-email");
+const regPass = document.getElementById("reg-password");
+const regBtn = document.getElementById("register-submit-btn");
+const regError = document.getElementById("register-error");
 const regSuccess = document.getElementById("register-success");
 
 regForm.addEventListener("submit", async (e) => {

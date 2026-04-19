@@ -1,5 +1,5 @@
+from decimal import Decimal
 from http import HTTPStatus
-from types import SimpleNamespace
 from unittest.mock import AsyncMock
 
 import pytest
@@ -7,6 +7,7 @@ from fastapi import HTTPException
 from sqlalchemy.exc import IntegrityError
 
 from src.infra.entities import ParticipationResult, TenderStatus
+from src.schemas.tender import TenderCreateSchema, TenderUpdateSchema
 from src.services.tender_service import TenderService
 from tests.factories import CompanyFactory, TenderFactory
 
@@ -27,7 +28,7 @@ async def test_create_tender_duplicate_should_raise_conflict(session, user):
     session.add(existing)
     await session.commit()
 
-    data = SimpleNamespace(
+    data = TenderCreateSchema(
         tender_number=123,
         tender_year=2026,
         object_description="Valid object description",
@@ -35,15 +36,6 @@ async def test_create_tender_duplicate_should_raise_conflict(session, user):
         modality=existing.modality,
         format=existing.format,
         session_date=existing.session_date,
-        model_dump=lambda: {
-            "tender_number": 123,
-            "tender_year": 2026,
-            "object_description": "Valid object description",
-            "public_body_name": "City Hall",
-            "modality": existing.modality,
-            "format": existing.format,
-            "session_date": existing.session_date,
-        },
     )
 
     with pytest.raises(HTTPException) as exc:
@@ -66,11 +58,9 @@ async def test_update_tender_won_without_positive_awarded_value_should_raise(
     session.add(tender)
     await session.commit()
 
-    data = SimpleNamespace(
-        model_dump=lambda exclude_unset=True: {
-            "participation_result": ParticipationResult.WON,
-            "awarded_value": 0,
-        }
+    data = TenderUpdateSchema(
+        participation_result=ParticipationResult.WON,
+        awarded_value=Decimal("0.0"),
     )
 
     with pytest.raises(HTTPException) as exc:
@@ -92,6 +82,7 @@ async def test_update_tender_duplicate_should_raise_conflict(session, user):
         tender_year=2026,
         public_body_name="City Hall",
         modality="trading_session",
+        format="electronic",
     )
     tender_2 = TenderFactory(
         company_id=company.id,
@@ -103,14 +94,12 @@ async def test_update_tender_duplicate_should_raise_conflict(session, user):
     session.add_all([tender_1, tender_2])
     await session.commit()
 
-    data = SimpleNamespace(
-        model_dump=lambda exclude_unset=True: {
-            "tender_number": 123,
-            "tender_year": 2026,
-            "public_body_name": "City Hall",
-            "modality": "trading_session",
-            "format": "electronic",
-        }
+    data = TenderUpdateSchema(
+        tender_number=123,
+        tender_year=2026,
+        public_body_name="City Hall",
+        modality="trading_session",
+        format="electronic",
     )
 
     with pytest.raises(HTTPException) as exc:
@@ -132,6 +121,7 @@ async def test_update_tender_should_ignore_same_identification_values(session, u
         tender_year=2026,
         public_body_name="City Hall",
         modality="trading_session",
+        status=TenderStatus.FINISHED,
     )
     duplicate = TenderFactory(
         company_id=company.id,
@@ -139,18 +129,17 @@ async def test_update_tender_should_ignore_same_identification_values(session, u
         tender_year=2026,
         public_body_name="City Hall",
         modality="trading_session",
+        status=TenderStatus.FINISHED,
     )
     session.add_all([tender, duplicate])
     await session.commit()
 
-    data = SimpleNamespace(
-        model_dump=lambda exclude_unset=True: {
-            "tender_number": 123,
-            "tender_year": 2026,
-            "public_body_name": "City Hall",
-            "participation_result": ParticipationResult.WON,
-            "awarded_value": 1,
-        }
+    data = TenderUpdateSchema(
+        tender_number=123,
+        tender_year=2026,
+        public_body_name="City Hall",
+        participation_result=ParticipationResult.WON,
+        awarded_value=Decimal("1.0"),
     )
 
     updated = await service.update(tender.id, company_id=company.id, data=data)
@@ -166,21 +155,13 @@ async def test_create_tender_integrity_error(session, user):
     session.add(company)
     await session.commit()
 
-    data = SimpleNamespace(
+    data = TenderCreateSchema(
         tender_number=123,
         tender_year=2026,
+        object_description="Valid object description",
         public_body_name="City Hall",
         modality="trading_session",
         format="electronic",
-        model_dump=lambda: {
-            "tender_number": 123,
-            "tender_year": 2026,
-            "object_description": "Valid object description",
-            "public_body_name": "City Hall",
-            "modality": "trading_session",
-            "format": "electronic",
-            "session_date": "2026-01-01T10:00:00",
-        },
     )
 
     session.commit = AsyncMock(side_effect=IntegrityError("x", "y", "z"))
@@ -202,9 +183,7 @@ async def test_update_tender_integrity_error(session, user):
     session.add(tender)
     await session.commit()
 
-    data = SimpleNamespace(
-        model_dump=lambda exclude_unset=True: {"object_description": "Updated"}
-    )
+    data = TenderUpdateSchema(object_description="Updated")
 
     session.commit = AsyncMock(side_effect=IntegrityError("x", "y", "z"))
 
@@ -216,6 +195,8 @@ async def test_update_tender_integrity_error(session, user):
 
 @pytest.mark.asyncio
 async def test_list_tenders_with_filters(session, user):
+    from types import SimpleNamespace
+
     service = TenderService(session)
     company = CompanyFactory(user_id=user.id)
     session.add(company)
@@ -256,25 +237,14 @@ async def test_create_tender_with_different_statuses(session, user, status):
     session.add(company)
     await session.commit()
 
-    data = SimpleNamespace(
+    data = TenderCreateSchema(
         tender_number=123,
         tender_year=2026,
         object_description="Valid object description",
         public_body_name="City Hall",
         modality="trading_session",
         format="electronic",
-        session_date="2026-01-01T10:00:00",
         status=status,
-        model_dump=lambda: {
-            "tender_number": 123,
-            "tender_year": 2026,
-            "object_description": "Valid object description",
-            "public_body_name": "City Hall",
-            "modality": "trading_session",
-            "format": "electronic",
-            "session_date": "2026-01-01T10:00:00",
-            "status": status,
-        },
     )
 
     created = await service.create(company.id, data)
@@ -293,29 +263,16 @@ async def test_create_tender_won_without_positive_awarded_value_should_raise(
     session.add(company)
     await session.commit()
 
-    data = SimpleNamespace(
+    data = TenderCreateSchema(
         tender_number=789,
         tender_year=2026,
         object_description="Valid object description",
         public_body_name="City Hall",
         modality="trading_session",
         format="electronic",
-        session_date="2026-01-01T10:00:00",
         status=TenderStatus.FINISHED,
         participation_result=ParticipationResult.WON,
-        awarded_value=0,
-        model_dump=lambda: {
-            "tender_number": 789,
-            "tender_year": 2026,
-            "object_description": "Valid object description",
-            "public_body_name": "City Hall",
-            "modality": "trading_session",
-            "format": "electronic",
-            "session_date": "2026-01-01T10:00:00",
-            "status": TenderStatus.FINISHED,
-            "participation_result": ParticipationResult.WON,
-            "awarded_value": 0,
-        },
+        awarded_value=Decimal("0.0"),
     )
 
     with pytest.raises(HTTPException) as exc:
@@ -334,68 +291,21 @@ async def test_create_tender_won_with_positive_awarded_value_should_succeed(
     session.add(company)
     await session.commit()
 
-    data = SimpleNamespace(
+    data = TenderCreateSchema(
         tender_number=999,
         tender_year=2026,
         object_description="Valid object description",
         public_body_name="City Hall",
         modality="trading_session",
         format="electronic",
-        session_date="2026-01-01T10:00:00",
         status=TenderStatus.FINISHED,
         participation_result=ParticipationResult.WON,
-        awarded_value=1500.50,
-        model_dump=lambda: {
-            "tender_number": 999,
-            "tender_year": 2026,
-            "object_description": "Valid object description",
-            "public_body_name": "City Hall",
-            "modality": "trading_session",
-            "format": "electronic",
-            "session_date": "2026-01-01T10:00:00",
-            "status": TenderStatus.FINISHED,
-            "participation_result": ParticipationResult.WON,
-            "awarded_value": 1500.50,
-        },
+        awarded_value=Decimal("1500.50"),
     )
 
     created = await service.create(company.id, data)
     assert created.participation_result == ParticipationResult.WON
     assert float(created.awarded_value) == 1500.50
-
-
-@pytest.mark.asyncio
-async def test_should_raise_conflict_error_when_checking_uniqueness_for_existing_tender(
-    session, user
-):
-    service = TenderService(session)
-    company = CompanyFactory(user_id=user.id)
-    session.add(company)
-    await session.commit()
-
-    existing = TenderFactory(
-        company_id=company.id,
-        tender_number=123,
-        tender_year=2026,
-        public_body_name="City Hall",
-        modality="trading_session",
-        format="electronic",
-    )
-    session.add(existing)
-    await session.commit()
-
-    data = SimpleNamespace(
-        tender_number=123,
-        tender_year=2026,
-        public_body_name="City Hall",
-        modality="trading_session",
-        format="electronic",
-    )
-
-    with pytest.raises(HTTPException) as exc:
-        await service._check_uniqueness(company_id=company.id, data=data)
-
-    assert exc.value.status_code == HTTPStatus.CONFLICT
 
 
 @pytest.mark.parametrize(
@@ -431,13 +341,14 @@ async def test_should_pass_uniqueness_check_when_at_least_one_key_field_is_diffe
     data_args = {
         "tender_number": 123,
         "tender_year": 2026,
+        "object_description": "Valid description",
         "public_body_name": "City Hall",
         "modality": "trading_session",
         "format": "electronic",
     }
     data_args[field_to_change] = new_value
 
-    data = SimpleNamespace(**data_args)
+    data = TenderCreateSchema(**data_args)
 
-    # Should not raise any exception
-    await service._check_uniqueness(company_id=company.id, data=data)
+    created = await service.create(company_id=company.id, data=data)
+    assert created.id is not None
