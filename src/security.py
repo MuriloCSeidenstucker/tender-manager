@@ -2,6 +2,7 @@ from datetime import datetime, timedelta
 from http import HTTPStatus
 from zoneinfo import ZoneInfo
 
+import anyio
 from fastapi import Depends, HTTPException
 from fastapi.security import OAuth2PasswordBearer
 from jwt import DecodeError, ExpiredSignatureError, decode, encode
@@ -33,12 +34,14 @@ def create_access_token(data: dict):
     return encoded_jwt
 
 
-def get_password_hash(password: str):
-    return pwd_context.hash(password)
+async def get_password_hash(password: str):
+    return await anyio.to_thread.run_sync(pwd_context.hash, password)
 
 
-def verify_password(plain_password: str, hashed_password: str):
-    return pwd_context.verify(plain_password, hashed_password)
+async def verify_password(plain_password: str, hashed_password: str):
+    return await anyio.to_thread.run_sync(
+        pwd_context.verify, plain_password, hashed_password
+    )
 
 
 async def get_current_user(

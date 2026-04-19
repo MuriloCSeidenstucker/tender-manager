@@ -33,7 +33,7 @@ class UserService:
                     detail="Email already exists",
                 )
 
-        hashed_password = get_password_hash(data.password)
+        hashed_password = await get_password_hash(data.password)
 
         new_user = UserEntity(
             email=data.email,
@@ -82,13 +82,13 @@ class UserService:
                 status_code=HTTPStatus.FORBIDDEN, detail="Not enough permissions"
             )
 
-        if not verify_password(data.current_password, current_user.password):
+        if not await verify_password(data.current_password, current_user.password):
             raise HTTPException(
                 status_code=HTTPStatus.UNPROCESSABLE_ENTITY,
                 detail="Invalid current password",
             )
 
-        current_user.password = get_password_hash(data.new_password)
+        current_user.password = await get_password_hash(data.new_password)
         await self.session.commit()
         await self.session.refresh(current_user)
 

@@ -5,7 +5,7 @@ from jwt import decode
 from src.security import create_access_token, settings
 
 
-def test_jwt():
+async def test_jwt():
     data = {"test": "test"}
     token = create_access_token(data)
 
@@ -15,8 +15,8 @@ def test_jwt():
     assert "exp" in decoded
 
 
-def test_jwt_invalid_token(client):
-    response = client.delete(
+async def test_jwt_invalid_token(client):
+    response = await client.delete(
         "/users/1", headers={"Authorization": "Bearer invalid-token"}
     )
 

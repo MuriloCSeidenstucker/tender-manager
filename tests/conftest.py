@@ -6,7 +6,7 @@ from datetime import datetime
 import factory
 import pytest
 import pytest_asyncio
-from fastapi.testclient import TestClient
+from httpx import ASGITransport, AsyncClient
 from sqlalchemy import event
 from sqlalchemy.ext.asyncio import AsyncSession, create_async_engine
 from testcontainers.postgres import PostgresContainer
@@ -26,14 +26,16 @@ class UserFactory(factory.Factory):
     password = factory.LazyAttribute(lambda obj: f"{obj.username}testpassword")
 
 
-@pytest.fixture
-def client(session):
+@pytest_asyncio.fixture
+async def client(session):
     def get_session_override():
         return session
 
-    with TestClient(app) as client:
-        app.dependency_overrides[get_session] = get_session_override
-        yield client
+    app.dependency_overrides[get_session] = get_session_override
+    async with AsyncClient(
+        transport=ASGITransport(app=app), base_url="http://test"
+    ) as ac:
+        yield ac
 
     app.dependency_overrides.clear()
 
@@ -80,7 +82,7 @@ def mock_db_time():
 @pytest_asyncio.fixture
 async def user(session):
     password = "testtest"
-    user = UserFactory(password=get_password_hash(password))
+    user = UserFactory(password=await get_password_hash(password))
 
     session.add(user)
     await session.commit()
@@ -94,7 +96,7 @@ async def user(session):
 @pytest_asyncio.fixture
 async def other_user(session):
     password = "testtest"
-    user = UserFactory(password=get_password_hash(password))
+    user = UserFactory(password=await get_password_hash(password))
 
     session.add(user)
     await session.commit()
@@ -105,9 +107,9 @@ async def other_user(session):
     return user
 
 
-@pytest.fixture
-def token(client, user):
-    response = client.post(
+@pytest_asyncio.fixture
+async def token(client, user):
+    response = await client.post(
         "/auth/token",
         data={"username": user.email, "password": user.clean_password},
     )

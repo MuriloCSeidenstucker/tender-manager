@@ -13,7 +13,7 @@ async def test_should_create_tender_when_payload_is_valid(session, client, user,
     session.add(company)
     await session.commit()
 
-    response = client.post(
+    response = await client.post(
         f"/companies/{company.id}/tenders/",
         headers={"Authorization": f"Bearer {token}"},
         json={
@@ -47,8 +47,8 @@ async def test_should_return_not_found_when_company_belongs_to_another_user(
     session.add(company)
     await session.commit()
 
-    response = client.post(
-        f"/companies/{company.id}/tenders",
+    response = await client.post(
+        f"/companies/{company.id}/tenders/",
         headers={"Authorization": f"Bearer {token}"},
         json={
             "tender_number": 123,
@@ -75,7 +75,7 @@ async def test_should_return_tenders_when_company_exists(session, client, user, 
     session.add_all(tenders)
     await session.commit()
 
-    response = client.get(
+    response = await client.get(
         f"/companies/{company.id}/tenders/",
         headers={"Authorization": f"Bearer {token}"},
     )
@@ -102,7 +102,7 @@ async def test_should_return_only_tenders_for_specified_company(
     session.add_all(TenderFactory.create_batch(2, company_id=company2.id))
     await session.commit()
 
-    response = client.get(
+    response = await client.get(
         f"/companies/{company1.id}/tenders/",
         headers={"Authorization": f"Bearer {token}"},
     )
@@ -114,7 +114,7 @@ async def test_should_return_only_tenders_for_specified_company(
 
 @pytest.mark.asyncio
 async def test_should_return_not_found_when_listing_unowned_company(client, token):
-    response = client.get(
+    response = await client.get(
         "/companies/999/tenders/",
         headers={"Authorization": f"Bearer {token}"},
     )
@@ -130,7 +130,7 @@ async def test_should_return_not_found_when_listing_foreign_company(
     session.add(company)
     await session.commit()
 
-    response = client.get(
+    response = await client.get(
         f"/companies/{company.id}/tenders/",
         headers={"Authorization": f"Bearer {token}"},
     )
@@ -155,7 +155,7 @@ async def test_should_update_tender_when_payload_is_valid(client, session, user,
         "status": "approved",
     }
 
-    response = client.patch(
+    response = await client.patch(
         f"/companies/{company.id}/tenders/{tender.id}",
         json=payload,
         headers={"Authorization": f"Bearer {token}"},
@@ -177,7 +177,7 @@ async def test_should_return_not_found_when_patching_nonexistent_tender(
     await session.commit()
     await session.refresh(company)
 
-    response = client.patch(
+    response = await client.patch(
         f"/companies/{company.id}/tenders/9999",
         json={"status": "approved"},
         headers={"Authorization": f"Bearer {token}"},
@@ -200,7 +200,7 @@ async def test_should_return_not_found_when_patching_foreign_company_tender(
     session.add(tender)
     await session.commit()
 
-    response = client.patch(
+    response = await client.patch(
         f"/companies/{company.id}/tenders/{tender.id}",
         json={"status": "approved"},
         headers={"Authorization": f"Bearer {token}"},
@@ -229,7 +229,7 @@ async def test_should_update_only_provided_fields_when_patching_tender(
 
     payload = {"status": "approved"}
 
-    response = client.patch(
+    response = await client.patch(
         f"/companies/{company.id}/tenders/{tender.id}",
         json=payload,
         headers={"Authorization": f"Bearer {token}"},
@@ -264,7 +264,7 @@ async def test_should_update_multiple_fields_when_patching_tender(
         "format": "electronic",
     }
 
-    response = client.patch(
+    response = await client.patch(
         f"/companies/{company.id}/tenders/{tender.id}",
         json=payload,
         headers={"Authorization": f"Bearer {token}"},
@@ -292,7 +292,7 @@ async def test_should_delete_tender_when_id_is_valid(client, session, user, toke
     await session.commit()
     await session.refresh(tender)
 
-    response = client.delete(
+    response = await client.delete(
         f"/companies/{company.id}/tenders/{tender.id}",
         headers={"Authorization": f"Bearer {token}"},
     )
@@ -313,7 +313,7 @@ async def test_should_return_not_found_when_deleting_nonexistent_tender(
     await session.commit()
     await session.refresh(company)
 
-    response = client.delete(
+    response = await client.delete(
         f"/companies/{company.id}/tenders/9999",
         headers={"Authorization": f"Bearer {token}"},
     )
@@ -335,7 +335,7 @@ async def test_should_return_not_found_when_deleting_tender_from_foreign_company
     session.add(tender)
     await session.commit()
 
-    response = client.delete(
+    response = await client.delete(
         f"/companies/{company.id}/tenders/{tender.id}",
         headers={"Authorization": f"Bearer {token}"},
     )
@@ -360,7 +360,7 @@ async def test_should_return_not_found_when_deleting_tender_belonging_to_unowned
     session.add(tender)
     await session.commit()
 
-    response = client.delete(
+    response = await client.delete(
         f"/companies/{company2.id}/tenders/{tender.id}",
         headers={"Authorization": f"Bearer {token}"},
     )

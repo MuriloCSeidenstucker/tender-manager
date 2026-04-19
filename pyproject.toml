@@ -46,6 +46,7 @@ dev = [
 pythonpath = "."
 addopts = "-p no:warnings"
 asyncio_default_fixture_loop_scope = "function"
+asyncio_mode = "auto"
 
 [tool.isort]
 profile = "black"

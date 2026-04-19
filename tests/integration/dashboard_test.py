@@ -13,7 +13,7 @@ from tests.factories import CompanyFactory, TenderFactory
 @pytest.mark.asyncio
 async def test_dashboard_metrics_empty(client, user, token):
     year = datetime.now().year
-    response = client.get(
+    response = await client.get(
         "/dashboard/metrics",
         headers={"Authorization": f"Bearer {token}"},
         params={"year": year},
@@ -31,7 +31,7 @@ async def test_dashboard_metrics_company_no_tenders(client, session, user, token
     await session.commit()
 
     year = datetime.now().year
-    response = client.get(
+    response = await client.get(
         "/dashboard/metrics",
         headers={"Authorization": f"Bearer {token}"},
         params={"year": year},
@@ -68,7 +68,7 @@ async def test_dashboard_metrics_with_tenders(client, session, user, token):
     session.add_all([won_tender, lost_tender])
     await session.commit()
 
-    response = client.get(
+    response = await client.get(
         "/dashboard/metrics",
         headers={"Authorization": f"Bearer {token}"},
         params={"year": year},
@@ -104,7 +104,7 @@ async def test_dashboard_metrics_filters_by_year(client, session, user, token):
     session.add_all([current_year_tender, old_year_tender])
     await session.commit()
 
-    response = client.get(
+    response = await client.get(
         "/dashboard/metrics",
         headers={"Authorization": f"Bearer {token}"},
         params={"year": current_year},
@@ -126,7 +126,7 @@ async def test_dashboard_metrics_isolates_user_companies(
     session.add_all([my_company, other_company])
     await session.commit()
 
-    response = client.get(
+    response = await client.get(
         "/dashboard/metrics",
         headers={"Authorization": f"Bearer {token}"},
     )
@@ -138,6 +138,6 @@ async def test_dashboard_metrics_isolates_user_companies(
     assert other_company.id not in company_ids
 
 
-def test_dashboard_metrics_requires_auth(client):
-    response = client.get("/dashboard/metrics")
+async def test_dashboard_metrics_requires_auth(client):
+    response = await client.get("/dashboard/metrics")
     assert response.status_code == HTTPStatus.UNAUTHORIZED

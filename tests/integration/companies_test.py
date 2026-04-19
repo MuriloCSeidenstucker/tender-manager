@@ -5,8 +5,8 @@ import pytest
 from tests.factories import CompanyFactory
 
 
-def test_create_company(client, token):
-    response = client.post(
+async def test_create_company(client, token):
+    response = await client.post(
         "/companies/",
         headers={"Authorization": f"Bearer {token}"},
         json={
@@ -23,8 +23,8 @@ def test_create_company(client, token):
     }
 
 
-def test_create_company_invalid_name(client, token):
-    response = client.post(
+async def test_create_company_invalid_name(client, token):
+    response = await client.post(
         "/companies/",
         headers={"Authorization": f"Bearer {token}"},
         json={
@@ -37,8 +37,8 @@ def test_create_company_invalid_name(client, token):
     assert response.status_code == HTTPStatus.UNPROCESSABLE_ENTITY
 
 
-def test_create_company_invalid_trade_name(client, token):
-    response = client.post(
+async def test_create_company_invalid_trade_name(client, token):
+    response = await client.post(
         "/companies/",
         headers={"Authorization": f"Bearer {token}"},
         json={
@@ -51,8 +51,8 @@ def test_create_company_invalid_trade_name(client, token):
     assert response.status_code == HTTPStatus.UNPROCESSABLE_ENTITY
 
 
-def test_create_company_invalid_cnpj(client, token):
-    response = client.post(
+async def test_create_company_invalid_cnpj(client, token):
+    response = await client.post(
         "/companies/",
         headers={"Authorization": f"Bearer {token}"},
         json={
@@ -65,8 +65,8 @@ def test_create_company_invalid_cnpj(client, token):
     assert response.status_code == HTTPStatus.UNPROCESSABLE_ENTITY
 
 
-def test_list_companies_invalid_filter_name(client, token):
-    response = client.get(
+async def test_list_companies_invalid_filter_name(client, token):
+    response = await client.get(
         "/companies/?name=ab",
         headers={"Authorization": f"Bearer {token}"},
     )
@@ -80,7 +80,7 @@ async def test_list_companies_should_return_5_companies(session, client, user, t
     session.add_all(CompanyFactory.create_batch(5, user_id=user.id))
     await session.commit()
 
-    response = client.get(
+    response = await client.get(
         "/companies/",
         headers={"Authorization": f"Bearer {token}"},
     )
@@ -96,7 +96,7 @@ async def test_list_companies_pagination_should_return_2_companies(
     session.add_all(CompanyFactory.create_batch(5, user_id=user.id))
     await session.commit()
 
-    response = client.get(
+    response = await client.get(
         "/companies/?offset=1&limit=2",
         headers={"Authorization": f"Bearer {token}"},
     )
@@ -114,7 +114,7 @@ async def test_list_companies_filter_name_should_return_5_companies(
     )
     await session.commit()
 
-    response = client.get(
+    response = await client.get(
         "/companies/?name=Test company 1",
         headers={"Authorization": f"Bearer {token}"},
     )
@@ -132,7 +132,7 @@ async def test_list_companies_filter_trade_name_should_return_5_companies(
     )
     await session.commit()
 
-    response = client.get(
+    response = await client.get(
         "/companies/?trade_name=trade name",
         headers={"Authorization": f"Bearer {token}"},
     )
@@ -150,7 +150,7 @@ async def test_list_companies_filter_cnpj_should_return_5_companies(
     )
     await session.commit()
 
-    response = client.get(
+    response = await client.get(
         "/companies/?cnpj=12345678901234",
         headers={"Authorization": f"Bearer {token}"},
     )
@@ -184,7 +184,7 @@ async def test_list_companies_filter_combined_should_return_5_companies(
     )
     await session.commit()
 
-    response = client.get(
+    response = await client.get(
         "/companies/?name=Test company combined&trade_name=combined trade name&cnpj=12345678901234",
         headers={"Authorization": f"Bearer {token}"},
     )
@@ -199,7 +199,7 @@ async def test_patch_company(session, client, user, token):
     session.add(company)
     await session.commit()
 
-    response = client.patch(
+    response = await client.patch(
         f"/companies/{company.id}",
         json={"name": "teste name"},
         headers={"Authorization": f"Bearer {token}"},
@@ -208,8 +208,8 @@ async def test_patch_company(session, client, user, token):
     assert response.json()["name"] == "teste name"
 
 
-def test_patch_company_error(client, token):
-    response = client.patch(
+async def test_patch_company_error(client, token):
+    response = await client.patch(
         "/companies/10",
         json={},
         headers={"Authorization": f"Bearer {token}"},
@@ -224,7 +224,7 @@ async def test_patch_company_invalid_name(session, client, user, token):
     session.add(company)
     await session.commit()
 
-    response = client.patch(
+    response = await client.patch(
         f"/companies/{company.id}",
         json={"name": "ab"},
         headers={"Authorization": f"Bearer {token}"},
@@ -240,7 +240,7 @@ async def test_delete_company(session, client, user, token):
     session.add(company)
     await session.commit()
 
-    response = client.delete(
+    response = await client.delete(
         f"/companies/{company.id}", headers={"Authorization": f"Bearer {token}"}
     )
 
@@ -248,8 +248,8 @@ async def test_delete_company(session, client, user, token):
     assert response.json() == {"message": "Company has been deleted successfully."}
 
 
-def test_delete_company_error(client, token):
-    response = client.delete(
+async def test_delete_company_error(client, token):
+    response = await client.delete(
         f"/companies/{10}", headers={"Authorization": f"Bearer {token}"}
     )
 
