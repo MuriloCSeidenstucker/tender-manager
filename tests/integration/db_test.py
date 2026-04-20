@@ -7,7 +7,9 @@ from src.infra.entities import CompanyEntity, UserEntity
 
 
 @pytest.mark.asyncio
-async def test_create_user(session, mock_db_time):
+async def test_db_user_creation_with_valid_data_persists_correctly(
+    session, mock_db_time
+):
     with mock_db_time(model=UserEntity) as time:
         new_user = UserEntity(username="alice", password="secret", email="test@test")
         session.add(new_user)
@@ -28,7 +30,7 @@ async def test_create_user(session, mock_db_time):
 
 
 @pytest.mark.asyncio
-async def test_create_company(session, user):
+async def test_db_company_creation_with_valid_data_persists_correctly(session, user):
     company = CompanyEntity(
         name="Test Company",
         trade_name="Test trade name",
@@ -50,7 +52,7 @@ async def test_create_company(session, user):
 
 
 @pytest.mark.asyncio
-async def test_user_company_relationship(session, user: UserEntity):
+async def test_db_user_company_relationship_links_correctly(session, user: UserEntity):
     company = CompanyEntity(
         name="Test Company",
         trade_name="Test trade name",

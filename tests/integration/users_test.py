@@ -3,7 +3,7 @@ from http import HTTPStatus
 from src.schemas.user import UserPublicSchema
 
 
-async def test_should_create_user_when_payload_is_valid(client):
+async def test_user_create_with_valid_payload_returns_created(client):
     response = await client.post(
         "/users/",
         json={
@@ -20,19 +20,19 @@ async def test_should_create_user_when_payload_is_valid(client):
     }
 
 
-async def test_should_return_empty_list_when_no_users_exist(client):
+async def test_user_list_when_no_users_exist_returns_empty_list(client):
     response = await client.get("/users/")
     assert response.status_code == HTTPStatus.OK
     assert response.json() == {"users": []}
 
 
-async def test_should_return_list_when_users_exist(client, user):
+async def test_user_list_when_users_exist_returns_user_list(client, user):
     user_schema = UserPublicSchema.model_validate(user).model_dump()
     response = await client.get("/users/")
     assert response.json() == {"users": [user_schema]}
 
 
-async def test_should_update_user_when_payload_is_valid(client, user, token):
+async def test_user_update_with_valid_payload_returns_ok(client, user, token):
     response = await client.patch(
         f"/users/{user.id}",
         headers={"Authorization": f"Bearer {token}"},
@@ -49,9 +49,7 @@ async def test_should_update_user_when_payload_is_valid(client, user, token):
     }
 
 
-async def test_should_return_conflict_when_updating_with_existing_email_or_username(
-    client, user, token
-):
+async def test_user_update_with_existing_identity_returns_conflict(client, user, token):
     await client.post(
         "/users/",
         json={
@@ -74,9 +72,7 @@ async def test_should_return_conflict_when_updating_with_existing_email_or_usern
     assert response_update.json() == {"detail": "Username or Email already exists"}
 
 
-async def test_should_return_forbidden_when_updating_another_user(
-    client, other_user, token
-):
+async def test_user_update_another_user_returns_forbidden(client, other_user, token):
     response = await client.patch(
         f"/users/{other_user.id}",
         headers={"Authorization": f"Bearer {token}"},
@@ -89,7 +85,9 @@ async def test_should_return_forbidden_when_updating_another_user(
     assert response.json() == {"detail": "Not enough permissions"}
 
 
-async def test_should_update_password_when_credentials_are_valid(client, user, token):
+async def test_user_update_password_with_valid_credentials_returns_ok(
+    client, user, token
+):
     response = await client.patch(
         f"/users/{user.id}/password",
         headers={"Authorization": f"Bearer {token}"},
@@ -102,7 +100,7 @@ async def test_should_update_password_when_credentials_are_valid(client, user, t
     assert response.json() == {"message": "Password updated successfully"}
 
 
-async def test_should_return_unprocessable_when_current_password_is_wrong(
+async def test_user_update_password_with_wrong_current_password_returns_unprocessable(
     client, user, token
 ):
     response = await client.patch(
@@ -117,7 +115,7 @@ async def test_should_return_unprocessable_when_current_password_is_wrong(
     assert response.json() == {"detail": "Invalid current password"}
 
 
-async def test_should_delete_user_when_user_is_authorized(client, user, token):
+async def test_user_delete_with_authorized_user_returns_ok(client, user, token):
     response = await client.delete(
         f"/users/{user.id}",
         headers={"Authorization": f"Bearer {token}"},
@@ -127,9 +125,7 @@ async def test_should_delete_user_when_user_is_authorized(client, user, token):
     assert response.json() == {"message": "User deleted"}
 
 
-async def test_should_return_forbidden_when_deleting_another_user(
-    client, other_user, token
-):
+async def test_user_delete_another_user_returns_forbidden(client, other_user, token):
     response = await client.delete(
         f"/users/{other_user.id}",
         headers={"Authorization": f"Bearer {token}"},

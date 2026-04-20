@@ -5,7 +5,7 @@ import pytest
 from tests.factories import CompanyFactory
 
 
-async def test_create_company(client, token):
+async def test_company_create_with_valid_payload_returns_ok(client, token):
     response = await client.post(
         "/companies/",
         headers={"Authorization": f"Bearer {token}"},
@@ -23,7 +23,7 @@ async def test_create_company(client, token):
     }
 
 
-async def test_create_company_invalid_name(client, token):
+async def test_company_create_with_invalid_name_returns_unprocessable(client, token):
     response = await client.post(
         "/companies/",
         headers={"Authorization": f"Bearer {token}"},
@@ -37,7 +37,9 @@ async def test_create_company_invalid_name(client, token):
     assert response.status_code == HTTPStatus.UNPROCESSABLE_ENTITY
 
 
-async def test_create_company_invalid_trade_name(client, token):
+async def test_company_create_with_invalid_trade_name_returns_unprocessable(
+    client, token
+):
     response = await client.post(
         "/companies/",
         headers={"Authorization": f"Bearer {token}"},
@@ -51,7 +53,7 @@ async def test_create_company_invalid_trade_name(client, token):
     assert response.status_code == HTTPStatus.UNPROCESSABLE_ENTITY
 
 
-async def test_create_company_invalid_cnpj(client, token):
+async def test_company_create_with_invalid_cnpj_returns_unprocessable(client, token):
     response = await client.post(
         "/companies/",
         headers={"Authorization": f"Bearer {token}"},
@@ -65,7 +67,9 @@ async def test_create_company_invalid_cnpj(client, token):
     assert response.status_code == HTTPStatus.UNPROCESSABLE_ENTITY
 
 
-async def test_list_companies_invalid_filter_name(client, token):
+async def test_company_list_with_invalid_filter_name_returns_unprocessable(
+    client, token
+):
     response = await client.get(
         "/companies/?name=ab",
         headers={"Authorization": f"Bearer {token}"},
@@ -75,7 +79,9 @@ async def test_list_companies_invalid_filter_name(client, token):
 
 
 @pytest.mark.asyncio
-async def test_list_companies_should_return_5_companies(session, client, user, token):
+async def test_company_list_with_valid_user_returns_all_companies(
+    session, client, user, token
+):
     expected_companies = 5
     session.add_all(CompanyFactory.create_batch(5, user_id=user.id))
     await session.commit()
@@ -89,7 +95,7 @@ async def test_list_companies_should_return_5_companies(session, client, user, t
 
 
 @pytest.mark.asyncio
-async def test_list_companies_pagination_should_return_2_companies(
+async def test_company_list_with_pagination_returns_correct_subset(
     session, user, client, token
 ):
     expected_companies = 2
@@ -105,7 +111,7 @@ async def test_list_companies_pagination_should_return_2_companies(
 
 
 @pytest.mark.asyncio
-async def test_list_companies_filter_name_should_return_5_companies(
+async def test_company_list_filter_by_name_returns_filtered_results(
     session, user, client, token
 ):
     expected_companies = 5
@@ -123,7 +129,7 @@ async def test_list_companies_filter_name_should_return_5_companies(
 
 
 @pytest.mark.asyncio
-async def test_list_companies_filter_trade_name_should_return_5_companies(
+async def test_company_list_filter_by_trade_name_returns_filtered_results(
     session, user, client, token
 ):
     expected_companies = 5
@@ -141,7 +147,7 @@ async def test_list_companies_filter_trade_name_should_return_5_companies(
 
 
 @pytest.mark.asyncio
-async def test_list_companies_filter_cnpj_should_return_5_companies(
+async def test_company_list_filter_by_cnpj_returns_filtered_results(
     session, user, client, token
 ):
     expected_companies = 5
@@ -159,7 +165,7 @@ async def test_list_companies_filter_cnpj_should_return_5_companies(
 
 
 @pytest.mark.asyncio
-async def test_list_companies_filter_combined_should_return_5_companies(
+async def test_company_list_filter_combined_returns_filtered_results(
     session, user, client, token
 ):
     expected_companies = 5
@@ -193,7 +199,9 @@ async def test_list_companies_filter_combined_should_return_5_companies(
 
 
 @pytest.mark.asyncio
-async def test_patch_company(session, client, user, token):
+async def test_company_update_with_valid_payload_returns_ok(
+    session, client, user, token
+):
     company = CompanyFactory(user_id=user.id)
 
     session.add(company)
@@ -208,7 +216,7 @@ async def test_patch_company(session, client, user, token):
     assert response.json()["name"] == "teste name"
 
 
-async def test_patch_company_error(client, token):
+async def test_company_update_nonexistent_id_returns_not_found(client, token):
     response = await client.patch(
         "/companies/10",
         json={},
@@ -219,7 +227,9 @@ async def test_patch_company_error(client, token):
 
 
 @pytest.mark.asyncio
-async def test_patch_company_invalid_name(session, client, user, token):
+async def test_company_update_with_invalid_name_returns_unprocessable(
+    session, client, user, token
+):
     company = CompanyFactory(user_id=user.id)
     session.add(company)
     await session.commit()
@@ -234,7 +244,9 @@ async def test_patch_company_invalid_name(session, client, user, token):
 
 
 @pytest.mark.asyncio
-async def test_delete_company(session, client, user, token):
+async def test_company_delete_with_valid_id_removes_company(
+    session, client, user, token
+):
     company = CompanyFactory(user_id=user.id)
 
     session.add(company)
@@ -248,7 +260,7 @@ async def test_delete_company(session, client, user, token):
     assert response.json() == {"message": "Company has been deleted successfully."}
 
 
-async def test_delete_company_error(client, token):
+async def test_company_delete_nonexistent_id_returns_not_found(client, token):
     response = await client.delete(
         f"/companies/{10}", headers={"Authorization": f"Bearer {token}"}
     )

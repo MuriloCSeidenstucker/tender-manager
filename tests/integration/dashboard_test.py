@@ -11,7 +11,9 @@ from tests.factories import CompanyFactory, TenderFactory
 
 
 @pytest.mark.asyncio
-async def test_dashboard_metrics_empty(client, user, token):
+async def test_dashboard_metrics_with_no_companies_returns_empty_list(
+    client, user, token
+):
     year = datetime.now().year
     response = await client.get(
         "/dashboard/metrics",
@@ -25,7 +27,9 @@ async def test_dashboard_metrics_empty(client, user, token):
 
 
 @pytest.mark.asyncio
-async def test_dashboard_metrics_company_no_tenders(client, session, user, token):
+async def test_dashboard_metrics_with_company_but_no_tenders_returns_zero_metrics(
+    client, session, user, token
+):
     company = CompanyFactory(user_id=user.id)
     session.add(company)
     await session.commit()
@@ -47,7 +51,9 @@ async def test_dashboard_metrics_company_no_tenders(client, session, user, token
 
 
 @pytest.mark.asyncio
-async def test_dashboard_metrics_with_tenders(client, session, user, token):
+async def test_dashboard_metrics_with_tenders_returns_calculated_metrics(
+    client, session, user, token
+):
     year = datetime.now().year
     company = CompanyFactory(user_id=user.id)
     session.add(company)
@@ -83,7 +89,9 @@ async def test_dashboard_metrics_with_tenders(client, session, user, token):
 
 
 @pytest.mark.asyncio
-async def test_dashboard_metrics_filters_by_year(client, session, user, token):
+async def test_dashboard_metrics_filter_by_year_returns_only_matching_metrics(
+    client, session, user, token
+):
     current_year = datetime.now().year
     company = CompanyFactory(user_id=user.id)
     session.add(company)
@@ -118,7 +126,7 @@ async def test_dashboard_metrics_filters_by_year(client, session, user, token):
 
 
 @pytest.mark.asyncio
-async def test_dashboard_metrics_isolates_user_companies(
+async def test_dashboard_metrics_with_another_users_data_returns_only_owned_metrics(
     client, session, user, other_user, token
 ):
     my_company = CompanyFactory(user_id=user.id)
@@ -138,6 +146,6 @@ async def test_dashboard_metrics_isolates_user_companies(
     assert other_company.id not in company_ids
 
 
-async def test_dashboard_metrics_requires_auth(client):
+async def test_dashboard_metrics_without_authentication_returns_unauthorized(client):
     response = await client.get("/dashboard/metrics")
     assert response.status_code == HTTPStatus.UNAUTHORIZED

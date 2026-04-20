@@ -1,5 +1,6 @@
 from decimal import Decimal
 from http import HTTPStatus
+from types import SimpleNamespace
 from unittest.mock import AsyncMock
 
 import pytest
@@ -13,7 +14,7 @@ from tests.factories import CompanyFactory, TenderFactory
 
 
 @pytest.mark.asyncio
-async def test_create_tender_duplicate_should_raise_conflict(session, user):
+async def test_tender_service_create_with_duplicate_data_raises_conflict(session, user):
     service = TenderService(session)
     company = CompanyFactory(user_id=user.id)
     session.add(company)
@@ -45,7 +46,7 @@ async def test_create_tender_duplicate_should_raise_conflict(session, user):
 
 
 @pytest.mark.asyncio
-async def test_update_tender_won_without_positive_awarded_value_should_raise(
+async def test_tender_service_update_won_tender_without_awarded_value_raises_unprocessable(
     session,
     user,
 ):
@@ -70,7 +71,7 @@ async def test_update_tender_won_without_positive_awarded_value_should_raise(
 
 
 @pytest.mark.asyncio
-async def test_update_tender_duplicate_should_raise_conflict(session, user):
+async def test_tender_service_update_with_duplicate_data_raises_conflict(session, user):
     service = TenderService(session)
     company = CompanyFactory(user_id=user.id)
     session.add(company)
@@ -109,7 +110,7 @@ async def test_update_tender_duplicate_should_raise_conflict(session, user):
 
 
 @pytest.mark.asyncio
-async def test_update_tender_should_ignore_same_identification_values(session, user):
+async def test_tender_service_update_with_same_identity_values_succeeds(session, user):
     service = TenderService(session)
     company = CompanyFactory(user_id=user.id)
     session.add(company)
@@ -149,7 +150,9 @@ async def test_update_tender_should_ignore_same_identification_values(session, u
 
 
 @pytest.mark.asyncio
-async def test_create_tender_integrity_error(session, user):
+async def test_tender_service_create_with_integrity_error_raises_conflict(
+    session, user
+):
     service = TenderService(session)
     company = CompanyFactory(user_id=user.id)
     session.add(company)
@@ -173,7 +176,9 @@ async def test_create_tender_integrity_error(session, user):
 
 
 @pytest.mark.asyncio
-async def test_update_tender_integrity_error(session, user):
+async def test_tender_service_update_with_integrity_error_raises_conflict(
+    session, user
+):
     service = TenderService(session)
     company = CompanyFactory(user_id=user.id)
     session.add(company)
@@ -194,9 +199,7 @@ async def test_update_tender_integrity_error(session, user):
 
 
 @pytest.mark.asyncio
-async def test_list_tenders_with_filters(session, user):
-    from types import SimpleNamespace
-
+async def test_tender_service_list_with_filters_returns_matching_tenders(session, user):
     service = TenderService(session)
     company = CompanyFactory(user_id=user.id)
     session.add(company)
@@ -231,7 +234,9 @@ async def test_list_tenders_with_filters(session, user):
 
 @pytest.mark.parametrize("status", list(TenderStatus))
 @pytest.mark.asyncio
-async def test_create_tender_with_different_statuses(session, user, status):
+async def test_tender_service_create_with_various_statuses_persists_status_correctly(
+    session, user, status
+):
     service = TenderService(session)
     company = CompanyFactory(user_id=user.id)
     session.add(company)
@@ -254,7 +259,7 @@ async def test_create_tender_with_different_statuses(session, user, status):
 
 
 @pytest.mark.asyncio
-async def test_create_tender_won_without_positive_awarded_value_should_raise(
+async def test_tender_service_create_won_tender_without_awarded_value_raises_unprocessable(
     session,
     user,
 ):
@@ -282,7 +287,7 @@ async def test_create_tender_won_without_positive_awarded_value_should_raise(
 
 
 @pytest.mark.asyncio
-async def test_create_tender_won_with_positive_awarded_value_should_succeed(
+async def test_tender_service_create_won_tender_with_positive_awarded_value_succeeds(
     session,
     user,
 ):
@@ -319,7 +324,7 @@ async def test_create_tender_won_with_positive_awarded_value_should_succeed(
     ],
 )
 @pytest.mark.asyncio
-async def test_should_pass_uniqueness_check_when_at_least_one_key_field_is_different(
+async def test_tender_service_uniqueness_check_with_different_key_fields_passes(
     session, user, field_to_change, new_value
 ):
     service = TenderService(session)

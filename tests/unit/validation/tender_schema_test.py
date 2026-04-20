@@ -5,7 +5,7 @@ from src.infra.entities import ParticipationResult, TenderFormat, TenderModality
 from src.schemas.tender import TenderCreateSchema, TenderUpdateSchema
 
 
-def test_should_raise_error_when_object_description_is_less_than_3_characters():
+def test_tender_schema_with_short_description_raises_validation_error():
     default_data = {
         "tender_number": 1,
         "tender_year": 2026,
@@ -21,7 +21,7 @@ def test_should_raise_error_when_object_description_is_less_than_3_characters():
         TenderUpdateSchema(object_description="ab")
 
 
-def test_should_set_pending_result_when_participation_result_is_omitted():
+def test_tender_schema_with_omitted_participation_result_defaults_to_pending():
     default_data = {
         "tender_number": 1,
         "tender_year": 2026,

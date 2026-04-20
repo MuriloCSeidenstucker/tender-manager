@@ -3,7 +3,6 @@
 from contextlib import contextmanager
 from datetime import datetime
 
-import factory
 import pytest
 import pytest_asyncio
 from httpx import ASGITransport, AsyncClient
@@ -12,18 +11,10 @@ from sqlalchemy.ext.asyncio import AsyncSession, create_async_engine
 from testcontainers.postgres import PostgresContainer
 
 from src.app import app
-from src.infra.entities import UserEntity, table_registry
+from src.infra.entities import table_registry
 from src.infra.settings.database import get_session
 from src.security import get_password_hash
-
-
-class UserFactory(factory.Factory):
-    class Meta:
-        model = UserEntity
-
-    username = factory.Sequence(lambda n: f"test{n}")
-    email = factory.LazyAttribute(lambda obj: f"{obj.username}@test.com")
-    password = factory.LazyAttribute(lambda obj: f"{obj.username}testpassword")
+from tests.factories import UserFactory
 
 
 @pytest_asyncio.fixture

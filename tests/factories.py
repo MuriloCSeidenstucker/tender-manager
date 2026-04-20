@@ -9,9 +9,19 @@ from src.infra.entities import (
     TenderFormat,
     TenderModality,
     TenderStatus,
+    UserEntity,
 )
 
 fake = Faker()
+
+
+class UserFactory(factory.Factory):
+    class Meta:
+        model = UserEntity
+
+    username = factory.Sequence(lambda n: f"test{n}")
+    email = factory.LazyAttribute(lambda obj: f"{obj.username}@test.com")
+    password = factory.LazyAttribute(lambda obj: f"{obj.username}testpassword")
 
 
 class CompanyFactory(factory.Factory):

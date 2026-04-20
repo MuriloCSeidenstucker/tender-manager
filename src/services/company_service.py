@@ -15,15 +15,18 @@ class CompanyService:
     async def create(self, user_id: int, data):
         existing = await self.session.scalar(
             select(CompanyEntity).where(
-                CompanyEntity.user_id == user_id,
-                CompanyEntity.name == data.name,
+                (CompanyEntity.user_id == user_id)
+                & (
+                    (CompanyEntity.name == data.name)
+                    | (CompanyEntity.cnpj == data.cnpj)
+                )
             )
         )
 
         if existing:
             raise HTTPException(
                 status_code=HTTPStatus.CONFLICT,
-                detail="Company name already exists for this user.",
+                detail="Company name or CNPJ already exists for this user.",
             )
 
         company = CompanyEntity(

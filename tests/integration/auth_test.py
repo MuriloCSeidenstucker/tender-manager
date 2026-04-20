@@ -5,7 +5,7 @@ from http import HTTPStatus
 from freezegun import freeze_time
 
 
-async def test_get_token(client, user):
+async def test_auth_login_with_valid_credentials_returns_token(client, user):
     response = await client.post(
         "/auth/token",
         data={"username": user.email, "password": user.clean_password},
@@ -17,7 +17,7 @@ async def test_get_token(client, user):
     assert "token_type" in token
 
 
-async def test_token_expired_after_time(client, user):
+async def test_auth_expired_token_returns_unauthorized(client, user):
     with freeze_time("2023-07-14 12:00:00"):
         response = await client.post(
             "/auth/token",
@@ -39,7 +39,7 @@ async def test_token_expired_after_time(client, user):
         assert response.json() == {"detail": "Could not validate credentials"}
 
 
-async def test_token_inexistent_user(client):
+async def test_auth_login_with_inexistent_user_returns_unauthorized(client):
     response = await client.post(
         "/auth/token",
         data={"username": "no_user@no_domain.com", "password": "testtest"},
@@ -48,7 +48,7 @@ async def test_token_inexistent_user(client):
     assert response.json() == {"detail": "Incorrect email or password"}
 
 
-async def test_token_wrong_password(client, user):
+async def test_auth_login_with_wrong_password_returns_unauthorized(client, user):
     response = await client.post(
         "/auth/token", data={"username": user.email, "password": "wrong_password"}
     )
@@ -56,7 +56,9 @@ async def test_token_wrong_password(client, user):
     assert response.json() == {"detail": "Incorrect email or password"}
 
 
-async def test_refresh_token(client, user, token):
+async def test_auth_refresh_token_with_valid_token_returns_new_token(
+    client, user, token
+):
     response = await client.post(
         "/auth/refresh_token",
         headers={"Authorization": f"Bearer {token}"},
@@ -70,7 +72,7 @@ async def test_refresh_token(client, user, token):
     assert data["token_type"] == "bearer"
 
 
-async def test_token_expired_dont_refresh(client, user):
+async def test_auth_refresh_token_with_expired_token_returns_unauthorized(client, user):
     with freeze_time("2023-07-14 12:00:00"):
         response = await client.post(
             "/auth/token",

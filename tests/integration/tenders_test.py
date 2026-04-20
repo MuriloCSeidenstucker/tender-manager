@@ -7,7 +7,9 @@ from tests.factories import CompanyFactory, TenderFactory
 
 
 @pytest.mark.asyncio
-async def test_should_create_tender_when_payload_is_valid(session, client, user, token):
+async def test_tender_create_with_valid_payload_returns_ok(
+    session, client, user, token
+):
     company = CompanyFactory(user_id=user.id)
 
     session.add(company)
@@ -39,7 +41,7 @@ async def test_should_create_tender_when_payload_is_valid(session, client, user,
 
 
 @pytest.mark.asyncio
-async def test_should_return_not_found_when_company_belongs_to_another_user(
+async def test_tender_create_with_foreign_company_returns_not_found(
     session, client, other_user, token
 ):
     company = CompanyFactory(user_id=other_user.id)
@@ -65,7 +67,9 @@ async def test_should_return_not_found_when_company_belongs_to_another_user(
 
 
 @pytest.mark.asyncio
-async def test_should_return_tenders_when_company_exists(session, client, user, token):
+async def test_tender_list_with_valid_company_returns_tenders(
+    session, client, user, token
+):
     company = CompanyFactory(user_id=user.id)
     session.add(company)
     await session.commit()
@@ -87,7 +91,7 @@ async def test_should_return_tenders_when_company_exists(session, client, user, 
 
 
 @pytest.mark.asyncio
-async def test_should_return_only_tenders_for_specified_company(
+async def test_tender_list_returns_only_owned_company_tenders(
     session, client, user, token
 ):
     company1 = CompanyFactory(user_id=user.id)
@@ -113,7 +117,7 @@ async def test_should_return_only_tenders_for_specified_company(
 
 
 @pytest.mark.asyncio
-async def test_should_return_not_found_when_listing_unowned_company(client, token):
+async def test_tender_list_with_nonexistent_company_returns_not_found(client, token):
     response = await client.get(
         "/companies/999/tenders/",
         headers={"Authorization": f"Bearer {token}"},
@@ -123,7 +127,7 @@ async def test_should_return_not_found_when_listing_unowned_company(client, toke
 
 
 @pytest.mark.asyncio
-async def test_should_return_not_found_when_listing_foreign_company(
+async def test_tender_list_with_foreign_company_returns_not_found(
     session, client, other_user, token
 ):
     company = CompanyFactory(user_id=other_user.id)
@@ -139,7 +143,9 @@ async def test_should_return_not_found_when_listing_foreign_company(
 
 
 @pytest.mark.asyncio
-async def test_should_update_tender_when_payload_is_valid(client, session, user, token):
+async def test_tender_update_with_valid_payload_returns_ok(
+    client, session, user, token
+):
     company = CompanyFactory(user_id=user.id)
     session.add(company)
     await session.commit()
@@ -169,7 +175,7 @@ async def test_should_update_tender_when_payload_is_valid(client, session, user,
 
 
 @pytest.mark.asyncio
-async def test_should_return_not_found_when_patching_nonexistent_tender(
+async def test_tender_update_with_nonexistent_id_returns_not_found(
     client, session, user, token
 ):
     company = CompanyFactory(user_id=user.id)
@@ -188,7 +194,7 @@ async def test_should_return_not_found_when_patching_nonexistent_tender(
 
 
 @pytest.mark.asyncio
-async def test_should_return_not_found_when_patching_foreign_company_tender(
+async def test_tender_update_with_foreign_company_returns_not_found(
     client, session, other_user, token
 ):
     company = CompanyFactory(user_id=other_user.id)
@@ -211,7 +217,7 @@ async def test_should_return_not_found_when_patching_foreign_company_tender(
 
 
 @pytest.mark.asyncio
-async def test_should_update_only_provided_fields_when_patching_tender(
+async def test_tender_update_partial_fields_updates_only_provided_fields(
     client, session, user, token
 ):
     company = CompanyFactory(user_id=user.id)
@@ -244,7 +250,7 @@ async def test_should_update_only_provided_fields_when_patching_tender(
 
 
 @pytest.mark.asyncio
-async def test_should_update_multiple_fields_when_patching_tender(
+async def test_tender_update_multiple_fields_updates_all_fields(
     client, session, user, token
 ):
     company = CompanyFactory(user_id=user.id)
@@ -281,7 +287,7 @@ async def test_should_update_multiple_fields_when_patching_tender(
 
 
 @pytest.mark.asyncio
-async def test_should_delete_tender_when_id_is_valid(client, session, user, token):
+async def test_tender_delete_with_valid_id_removes_tender(client, session, user, token):
     company = CompanyFactory(user_id=user.id)
     session.add(company)
     await session.commit()
@@ -305,7 +311,7 @@ async def test_should_delete_tender_when_id_is_valid(client, session, user, toke
 
 
 @pytest.mark.asyncio
-async def test_should_return_not_found_when_deleting_nonexistent_tender(
+async def test_tender_delete_with_nonexistent_id_returns_not_found(
     client, session, user, token
 ):
     company = CompanyFactory(user_id=user.id)
@@ -323,7 +329,7 @@ async def test_should_return_not_found_when_deleting_nonexistent_tender(
 
 
 @pytest.mark.asyncio
-async def test_should_return_not_found_when_deleting_tender_from_foreign_company(
+async def test_tender_delete_from_foreign_company_returns_not_found(
     client, session, other_user, token
 ):
     company = CompanyFactory(user_id=other_user.id)
@@ -345,7 +351,7 @@ async def test_should_return_not_found_when_deleting_tender_from_foreign_company
 
 
 @pytest.mark.asyncio
-async def test_should_return_not_found_when_deleting_tender_belonging_to_unowned_company(
+async def test_tender_delete_from_wrong_company_link_returns_not_found(
     client, session, user, token
 ):
     company1 = CompanyFactory(user_id=user.id)
