@@ -49,7 +49,7 @@ O backend foi desenvolvido com FastAPI e SQLAlchemy assíncrono. O frontend é u
 - Cadastro, listagem, edição e exclusão de empresas
 - Cadastro, listagem, edição e exclusão de licitações por empresa
 - Filtros de consulta para empresas e licitações
-- Dashboard com total de licitações, vitórias e valor arrecadado por ano
+- Dashboard com total de licitações, vitórias e valor adjudicado por ano
 - Documentação automática da API via Swagger
 
 ## Stack Utilizada

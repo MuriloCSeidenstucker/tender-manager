@@ -1,4 +1,4 @@
-import { isAuthenticated } from "./api.js";
+import { isAuthenticated, parseErrorResponse } from "./api.js";
 
 if (isAuthenticated()) {
   window.location.href = "/frontend/dashboard.html";
@@ -61,8 +61,7 @@ loginForm.addEventListener("submit", async (e) => {
     });
 
     if (!response.ok) {
-      const err = await response.json().catch(() => ({}));
-      throw new Error(err?.detail ?? "Credenciais inválidas. Verifique seu e-mail e senha.");
+      throw new Error(await parseErrorResponse(response));
     }
 
     const data = await response.json();
@@ -105,8 +104,7 @@ regForm.addEventListener("submit", async (e) => {
     });
 
     if (!createResp.ok) {
-      const err = await createResp.json().catch(() => ({}));
-      throw new Error(err?.detail ?? "Erro ao criar conta. Tente novamente.");
+      throw new Error(await parseErrorResponse(createResp));
     }
 
     // 2. Show success briefly

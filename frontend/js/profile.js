@@ -1,4 +1,4 @@
-import { apiFetch, isAuthenticated, logout } from "./api.js";
+import { apiFetch, isAuthenticated, logout, parseErrorResponse } from "./api.js";
 
 if (!isAuthenticated()) {
   window.location.href = "/frontend/index.html";
@@ -110,8 +110,7 @@ profileForm.addEventListener("submit", async (e) => {
   setLoading(btnSaveProfile, false, "Salvar alterações");
 
   if (!resp || !resp.ok) {
-    const err = await resp?.json().catch(() => ({}));
-    showMsg(profileError, err?.detail ?? "Erro ao atualizar os dados.");
+    showMsg(profileError, await parseErrorResponse(resp));
     return;
   }
 
@@ -160,8 +159,7 @@ passwordForm.addEventListener("submit", async (e) => {
   setLoading(btnSavePassword, false, "Alterar senha");
 
   if (!resp || !resp.ok) {
-    const err = await resp?.json().catch(() => ({}));
-    showMsg(passwordError, err?.detail ?? "Erro ao alterar a senha.");
+    showMsg(passwordError, await parseErrorResponse(resp));
     return;
   }
 

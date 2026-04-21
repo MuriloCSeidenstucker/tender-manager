@@ -1,3 +1,4 @@
+from datetime import datetime
 from http import HTTPStatus
 
 from fastapi import HTTPException
@@ -93,6 +94,9 @@ class TenderService:
 
         # 3. Persistence
         tender_data = data.model_dump()
+        if not tender_data.get("session_date"):
+            tender_data["session_date"] = datetime.now()
+
         tender = TenderEntity(
             **tender_data,
             company_id=company_id,

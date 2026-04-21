@@ -5,7 +5,12 @@ from decimal import Decimal
 from sqlalchemy import case, func, select
 from sqlalchemy.ext.asyncio import AsyncSession
 
-from src.infra.entities import CompanyEntity, ParticipationResult, TenderEntity
+from src.infra.entities import (
+    CompanyEntity,
+    ParticipationResult,
+    TenderEntity,
+    TenderStatus,
+)
 
 
 class DashboardService:
@@ -21,8 +26,11 @@ class DashboardService:
                 func.sum(
                     case(
                         (
-                            TenderEntity.participation_result
-                            == ParticipationResult.WON,
+                            (
+                                TenderEntity.participation_result
+                                == ParticipationResult.WON
+                            )
+                            & (TenderEntity.status == TenderStatus.FINISHED),
                             1,
                         ),
                         else_=0,
@@ -32,8 +40,11 @@ class DashboardService:
                     func.sum(
                         case(
                             (
-                                TenderEntity.participation_result
-                                == ParticipationResult.WON,
+                                (
+                                    TenderEntity.participation_result
+                                    == ParticipationResult.WON
+                                )
+                                & (TenderEntity.status == TenderStatus.FINISHED),
                                 TenderEntity.awarded_value,
                             ),
                             else_=Decimal("0.0"),

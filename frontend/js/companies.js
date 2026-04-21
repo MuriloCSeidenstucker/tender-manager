@@ -1,4 +1,4 @@
-import { apiFetch, isAuthenticated, logout } from "./api.js";
+import { apiFetch, isAuthenticated, logout, parseErrorResponse } from "./api.js";
 
 if (!isAuthenticated()) {
   window.location.href = "/frontend/index.html";
@@ -177,8 +177,7 @@ companyForm.addEventListener("submit", async (e) => {
   btnSave.innerHTML = "Salvar";
 
   if (!resp || !resp.ok) {
-    const err = await resp?.json().catch(() => ({}));
-    formError.textContent = err?.detail ?? "Ocorreu um erro. Tente novamente.";
+    formError.textContent = await parseErrorResponse(resp);
     formError.classList.remove("hidden");
     return;
   }

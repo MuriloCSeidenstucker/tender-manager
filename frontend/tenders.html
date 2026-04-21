@@ -1,5 +1,6 @@
 <!DOCTYPE html>
 <html lang="pt-BR">
+
 <head>
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
@@ -9,6 +10,7 @@
   <link href="https://fonts.googleapis.com/css2?family=Outfit:wght@400;500;600;700&display=swap" rel="stylesheet" />
   <link rel="stylesheet" href="./css/style.css" />
 </head>
+
 <body>
 
   <div class="app-layout">
@@ -112,7 +114,8 @@
 
         <div class="form-group">
           <label for="tender-desc">Objeto</label>
-          <textarea id="tender-desc" placeholder="Descreva o objeto da licitação..." rows="3" maxlength="500" required></textarea>
+          <textarea id="tender-desc" placeholder="Descreva o objeto da licitação..." rows="3" maxlength="500"
+            required></textarea>
         </div>
 
         <div class="form-grid-2">
@@ -143,7 +146,7 @@
             <input id="tender-session-date" type="datetime-local" required />
           </div>
           <div class="form-group">
-            <label for="tender-status">Status <span class="label-hint">(edição)</span></label>
+            <label for="tender-status">Status</label>
             <select id="tender-status">
               <option value="monitoring">Monitoramento</option>
               <option value="analysis">Análise</option>
@@ -169,7 +172,7 @@
             </select>
           </div>
           <div class="form-group">
-            <label for="tender-awarded">Valor Arrecadado (R$) <span class="label-hint">se ganhou</span></label>
+            <label for="tender-awarded">Valor Adjudicado (R$)</label>
             <input id="tender-awarded" type="number" min="0" step="0.01" placeholder="0.00" />
           </div>
         </div>
@@ -191,7 +194,8 @@
         <h2>Excluir Licitação</h2>
         <button id="delete-modal-close" class="btn-modal-close">✕</button>
       </div>
-      <p class="confirm-text">Tem certeza que deseja excluir a licitação <strong id="delete-tender-label"></strong>? Esta ação não pode ser desfeita.</p>
+      <p class="confirm-text">Tem certeza que deseja excluir a licitação <strong id="delete-tender-label"></strong>?
+        Esta ação não pode ser desfeita.</p>
       <div class="modal-actions">
         <button id="btn-cancel-delete" class="btn-secondary">Cancelar</button>
         <button id="btn-confirm-delete" class="btn-danger">Excluir</button>
@@ -201,4 +205,5 @@
 
   <script type="module" src="./js/tenders.js"></script>
 </body>
+
 </html>

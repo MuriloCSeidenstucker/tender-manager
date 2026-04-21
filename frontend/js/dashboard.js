@@ -85,7 +85,7 @@ async function loadMetrics(year = currentYear) {
           <div class="metric-value">${company.won_tenders}</div>
         </div>
         <div class="metric-box warning wide">
-          <div class="metric-label">Total Arrecadado</div>
+          <div class="metric-label">Total Adjudicado</div>
           <div class="metric-value">${awarded}</div>
         </div>
       </div>`;

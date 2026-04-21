@@ -6,7 +6,7 @@ from http import HTTPStatus
 
 import pytest
 
-from src.infra.entities import ParticipationResult
+from src.infra.entities import ParticipationResult, TenderStatus
 from tests.factories import CompanyFactory, TenderFactory
 
 
@@ -63,12 +63,14 @@ async def test_dashboard_metrics_with_tenders_returns_calculated_metrics(
         company_id=company.id,
         tender_year=year,
         participation_result=ParticipationResult.WON,
+        status=TenderStatus.FINISHED,
         awarded_value=Decimal("5000.00"),
     )
     lost_tender = TenderFactory(
         company_id=company.id,
         tender_year=year,
         participation_result=ParticipationResult.LOST,
+        status=TenderStatus.FINISHED,
         awarded_value=None,
     )
     session.add_all([won_tender, lost_tender])
@@ -101,12 +103,14 @@ async def test_dashboard_metrics_filter_by_year_returns_only_matching_metrics(
         company_id=company.id,
         tender_year=current_year,
         participation_result=ParticipationResult.WON,
+        status=TenderStatus.FINISHED,
         awarded_value=Decimal("1000.00"),
     )
     old_year_tender = TenderFactory(
         company_id=company.id,
         tender_year=current_year - 1,
         participation_result=ParticipationResult.WON,
+        status=TenderStatus.FINISHED,
         awarded_value=Decimal("9999.00"),
     )
     session.add_all([current_year_tender, old_year_tender])
