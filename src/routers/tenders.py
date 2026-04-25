@@ -1,3 +1,5 @@
+# pylint: disable=R0917:too-many-positional-arguments
+
 from typing import Annotated
 
 from fastapi import APIRouter, Depends, Query

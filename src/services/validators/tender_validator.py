@@ -31,7 +31,6 @@ class TenderValidator:
         """
         Validates business rules for awarded value, result and status.
         """
-        # Rule: If LOST, awarded_value must be 0
         if participation_result == ParticipationResult.LOST:
             if awarded_value is not None and awarded_value != Decimal("0.0"):
                 raise HTTPException(
@@ -39,7 +38,6 @@ class TenderValidator:
                     detail="Awarded value must be zero when participation result is LOST.",
                 )
 
-        # Rule: If WON, awarded_value must be > 0
         if participation_result == ParticipationResult.WON:
             if awarded_value is None or awarded_value <= 0:
                 raise HTTPException(
@@ -47,7 +45,6 @@ class TenderValidator:
                     detail="Awarded value must be greater than zero when participation result is WON.",
                 )
 
-        # Rule: If awarded_value > 0, check for blocked statuses
         if awarded_value is not None and awarded_value > 0:
             if status in TenderValidator.BLOCKED_STATUSES_FOR_VALUE:
                 raise HTTPException(

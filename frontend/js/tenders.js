@@ -1,7 +1,7 @@
 import { apiFetch, isAuthenticated, logout, parseErrorResponse } from "./api.js";
 
 if (!isAuthenticated()) {
-  window.location.href = "/frontend/index.html";
+  window.location.href = "/index.html";
 }
 
 // ── DOM refs ──────────────────────────────────────────────────────────

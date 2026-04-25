@@ -1,10 +1,10 @@
 import { isAuthenticated, parseErrorResponse } from "./api.js";
 
 if (isAuthenticated()) {
-  window.location.href = "/frontend/dashboard.html";
+  window.location.href = "/dashboard.html";
 }
 
-const API_BASE = "http://localhost:8000";
+const API_BASE = "/api";
 
 // ── Tab switching ─────────────────────────────────────────────────────
 const tabLogin = document.getElementById("tab-login");
@@ -66,7 +66,7 @@ loginForm.addEventListener("submit", async (e) => {
 
     const data = await response.json();
     localStorage.setItem("access_token", data.access_token);
-    window.location.href = "/frontend/dashboard.html";
+    window.location.href = "/dashboard.html";
   } catch (err) {
     loginError.textContent = err.message;
     loginError.classList.remove("hidden");
@@ -134,7 +134,7 @@ regForm.addEventListener("submit", async (e) => {
     localStorage.setItem("access_token", tokenData.access_token);
 
     setTimeout(() => {
-      window.location.href = "/frontend/dashboard.html";
+      window.location.href = "/dashboard.html";
     }, 800);
   } catch (err) {
     regError.textContent = err.message;

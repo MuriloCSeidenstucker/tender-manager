@@ -1,4 +1,4 @@
-const API_BASE = "http://localhost:8000";
+const API_BASE = "/api";
 
 const ERROR_MAPPINGS = {
   // Auth
@@ -127,7 +127,7 @@ export async function apiFetch(path, options = {}) {
 
   if (response.status === 401) {
     localStorage.removeItem("access_token");
-    window.location.href = "/frontend/index.html";
+    window.location.href = "/index.html";
     return;
   }
 
@@ -140,5 +140,5 @@ export function isAuthenticated() {
 
 export function logout() {
   localStorage.removeItem("access_token");
-  window.location.href = "/frontend/index.html";
+  window.location.href = "/index.html";
 }

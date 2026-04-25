@@ -1,7 +1,7 @@
 import { apiFetch, isAuthenticated, logout } from "./api.js";
 
 if (!isAuthenticated()) {
-  window.location.href = "/frontend/index.html";
+  window.location.href = "/index.html";
 }
 
 const companiesContainer = document.getElementById("companies-container");

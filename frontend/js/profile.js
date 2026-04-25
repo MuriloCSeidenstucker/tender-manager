@@ -1,7 +1,7 @@
 import { apiFetch, isAuthenticated, logout, parseErrorResponse } from "./api.js";
 
 if (!isAuthenticated()) {
-  window.location.href = "/frontend/index.html";
+  window.location.href = "/index.html";
 }
 
 // ── DOM refs ──────────────────────────────────────────────────────────
@@ -191,7 +191,7 @@ btnConfirmDelete.addEventListener("click", async () => {
 
   if (resp && resp.ok) {
     localStorage.removeItem("access_token");
-    window.location.href = "/frontend/index.html";
+    window.location.href = "/index.html";
   } else {
     setLoading(btnConfirmDelete, false, "Sim, excluir minha conta");
     closeDeleteModal();

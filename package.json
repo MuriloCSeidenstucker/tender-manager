@@ -1,0 +1,29 @@
+{
+  "name": "tender-manager",
+  "version": "1.0.0",
+  "description": "[![Python 3.13](https://img.shields.io/badge/python-3.13-blue.svg)](https://www.python.org/)\r [![FastAPI](https://img.shields.io/badge/FastAPI-0.128-009688.svg)](https://fastapi.tiangolo.com/)\r [![PostgreSQL](https://img.shields.io/badge/PostgreSQL-16-336791.svg)](https://www.postgresql.org/)\r [![Docker](https://img.shields.io/badge/docker-ready-2496ED.svg)](https://www.docker.com/)\r [![Pytest](https://img.shields.io/badge/tests-pytest-0A9EDC.svg)](https://pytest.org/)\r [![GitHub Actions](https://img.shields.io/badge/CI-GitHub_Actions-2088FF.svg)](./.github/workflows/pipeline.yaml)\r [![License: MIT](https://img.shields.io/badge/license-MIT-yellow.svg)](./LICENSE)",
+  "main": "index.js",
+  "directories": {
+    "test": "tests"
+  },
+  "scripts": {
+    "test:frontend": "playwright test",
+    "test:frontend:ui": "playwright test --ui"
+  },
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/MuriloCSeidenstucker/tender-manager.git"
+  },
+  "keywords": [],
+  "author": "",
+  "license": "ISC",
+  "type": "commonjs",
+  "bugs": {
+    "url": "https://github.com/MuriloCSeidenstucker/tender-manager/issues"
+  },
+  "homepage": "https://github.com/MuriloCSeidenstucker/tender-manager#readme",
+  "devDependencies": {
+    "@playwright/test": "^1.59.1",
+    "@types/node": "^25.6.0"
+  }
+}

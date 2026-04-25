@@ -1,3 +1,5 @@
+# pylint: disable=R0917:too-many-positional-arguments, W0622:redefined-builtin
+
 from datetime import datetime
 from http import HTTPStatus
 
@@ -75,7 +77,6 @@ class TenderService:
         """
         Creates a new tender after verifying uniqueness and business rules.
         """
-        # 1. Verification
         await self._verify_uniqueness(
             company_id=company_id,
             tender_number=data.tender_number,
@@ -85,14 +86,12 @@ class TenderService:
             format=data.format,
         )
 
-        # 2. Domain Validation
         TenderValidator.validate_rules(
             participation_result=data.participation_result,
             awarded_value=data.awarded_value,
             status=data.status,
         )
 
-        # 3. Persistence
         tender_data = data.model_dump()
         if not tender_data.get("session_date"):
             tender_data["session_date"] = datetime.now()
@@ -167,7 +166,6 @@ class TenderService:
         tender = await self._find_by_id_and_company(tender_id, company_id)
         update_data = data.model_dump(exclude_unset=True)
 
-        # 1. Domain Validation (merged state)
         new_result = update_data.get(
             "participation_result", tender.participation_result
         )
@@ -178,7 +176,6 @@ class TenderService:
             participation_result=new_result, awarded_value=new_value, status=new_status
         )
 
-        # 2. Uniqueness check if needed
         id_fields = {
             "tender_number",
             "tender_year",
@@ -199,7 +196,6 @@ class TenderService:
                 exclude_tender_id=tender.id,
             )
 
-        # 3. Object update
         for key, value in update_data.items():
             setattr(tender, key, value)
 

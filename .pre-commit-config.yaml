@@ -34,10 +34,17 @@ repos:
         args: ["-rn", "-sn", "--rcfile=.pylintrc", "--load-plugins=pylint.extensions.docparams"]
 -   repo: local
     hooks:
-    -   id: task-test
-        name: task-test
+    -   id: backend-tests
+        name: backend-tests
         entry: poetry run task test
         pass_filenames: false
         always_run: true
         language: system
         types: [python]
+
+    -   id: frontend-tests
+        name: frontend-tests
+        entry: poetry run docker compose run --rm tendermanager_playwright
+        pass_filenames: false
+        always_run: true
+        language: system
