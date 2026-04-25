@@ -20,21 +20,22 @@ test.describe('Tender Manager - Login', () => {
       const userData = await createResponse.json();
       createdUserId = userData.id;
 
+      // Get token for cleanup now, instead of intercepting later, to avoid race conditions on redirect
+      const tokenResponse = await request.post('/api/auth/token', {
+        form: {
+          username: email,
+          password: password
+        }
+      });
+      expect(tokenResponse.ok()).toBeTruthy();
+      const tokenData = await tokenResponse.json();
+      accessToken = tokenData.access_token;
+
       // Act
       await page.goto('/');
       await page.locator('#login-email').fill(email);
       await page.locator('#login-password').fill(password);
-      
-      // Intercept the auth/token to get the token for cleanup
-      const tokenResponsePromise = page.waitForResponse(response => 
-        response.url().includes('/api/auth/token') && response.request().method() === 'POST'
-      );
-      
       await page.locator('#login-submit-btn').click();
-      
-      const tokenResponse = await tokenResponsePromise;
-      const tokenData = await tokenResponse.json();
-      accessToken = tokenData.access_token;
 
       // Assert
       await page.waitForURL('**/dashboard.html');
