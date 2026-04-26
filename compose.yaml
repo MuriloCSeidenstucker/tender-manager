@@ -50,6 +50,9 @@ services:
     depends_on:
       tendermanager_frontend:
         condition: service_started
+    volumes:
+      - .:/app
+      - /app/node_modules
     profiles:
       - test
 
