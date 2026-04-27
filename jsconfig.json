@@ -1,0 +1,11 @@
+{
+  "compilerOptions": {
+    "module": "commonjs",
+    "target": "es2020",
+    "moduleResolution": "node",
+    "checkJs": true,
+    "allowJs": true,
+    "types": ["node", "@playwright/test"]
+  },
+  "exclude": ["node_modules"]
+}
