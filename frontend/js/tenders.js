@@ -135,7 +135,7 @@ async function loadCompanies() {
   const preselected = params.get("company");
   if (preselected && companies.find((c) => String(c.id) === preselected)) {
     companySelect.value = preselected;
-    loadTenders(preselected);
+    await loadTenders(preselected);
     btnNew.disabled = false;
   }
 }

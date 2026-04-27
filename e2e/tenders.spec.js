@@ -34,12 +34,11 @@ test.describe('Tender Manager - Tenders', () => {
       const companyData = await companyResp.json();
       companyId = companyData.id;
 
-      // Set token and navigate
+      // Set token
       await page.goto('/');
       await page.evaluate((token) => {
         localStorage.setItem('access_token', token);
       }, accessToken);
-      await page.goto('/tenders.html');
     });
 
     test.afterEach(async ({ request }) => {
@@ -51,6 +50,7 @@ test.describe('Tender Manager - Tenders', () => {
     });
 
     test('should_populate_company_selector_and_handle_selection', async ({ page }) => {
+      await page.goto('/tenders.html');
       const selector = page.locator('#company-select');
       await expect(selector).toContainText('Tender Co Ltd');
 
@@ -70,11 +70,13 @@ test.describe('Tender Manager - Tenders', () => {
         // Assert
         await expect(page.locator('#company-select')).toHaveValue(String(companyId));
         await expect(page.locator('#btn-new-tender')).toBeEnabled();
-        await expect(page.locator('.empty-state h3')).toHaveText('Nenhuma licitação encontrada');
+        // Wait for tenders list to reflect the empty state of the selected company
+        await expect(page.locator('#tenders-list')).toContainText('Nenhuma licitação encontrada');
     });
 
     test('should_create_tender_successfully', async ({ page }) => {
       // Arrange
+      await page.goto('/tenders.html');
       await page.locator('#company-select').selectOption(String(companyId));
 
       // Act
@@ -104,6 +106,7 @@ test.describe('Tender Manager - Tenders', () => {
 
     test('should_show_error_for_invalid_business_rules', async ({ page }) => {
         // Rule: Result LOST but AWARDED VALUE > 0
+        await page.goto('/tenders.html');
         await page.locator('#company-select').selectOption(String(companyId));
         await page.locator('#btn-new-tender').click();
         
@@ -136,6 +139,7 @@ test.describe('Tender Manager - Tenders', () => {
         headers: { 'Authorization': `Bearer ${accessToken}` }
       });
       await page.reload();
+      await page.goto('/tenders.html');
       await page.locator('#company-select').selectOption(String(companyId));
 
       // Act
@@ -170,6 +174,7 @@ test.describe('Tender Manager - Tenders', () => {
         headers: { 'Authorization': `Bearer ${accessToken}` }
       });
       await page.reload();
+      await page.goto('/tenders.html');
       await page.locator('#company-select').selectOption(String(companyId));
 
       // Act
