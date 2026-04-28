@@ -7,15 +7,17 @@ from fastapi.middleware.cors import CORSMiddleware
 
 from src.routers import auth, companies, dashboard, tenders, users
 from src.schemas.common import MessageSchema
+from src.settings import Settings
 
 if sys.platform == "win32":
     asyncio.set_event_loop_policy(asyncio.WindowsSelectorEventLoopPolicy())
 
 app = FastAPI()
+settings = Settings()
 
 app.add_middleware(
     CORSMiddleware,
-    allow_origins=["*"],
+    allow_origins=settings.CORS_ORIGINS,
     allow_credentials=True,
     allow_methods=["*"],
     allow_headers=["*"],
