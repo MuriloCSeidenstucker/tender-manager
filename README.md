@@ -81,6 +81,7 @@ O backend foi desenvolvido com FastAPI e SQLAlchemy assíncrono. O frontend é u
 - Factory Boy
 - Freezegun
 - Testcontainers
+- Playwright (E2E)
 - Black
 - isort
 - Pylint
@@ -90,6 +91,7 @@ O backend foi desenvolvido com FastAPI e SQLAlchemy assíncrono. O frontend é u
 
 - Docker
 - Docker Compose
+- Nginx (Proxy Reverso)
 - GitHub Actions
 
 ## Estrutura do Projeto
@@ -151,9 +153,10 @@ docker-compose up --build
 
 ### 5. Abrir a API e o frontend
 
-- API: `http://localhost:8000`
+- Frontend: `http://localhost:8080`
+- API (via Proxy Reverso): `http://localhost:8080/api/`
+- API (Direta): `http://localhost:8000`
 - Swagger UI: `http://localhost:8000/docs`
-- Frontend: abrir a pasta no VS Code e iniciar o `Live Server` no arquivo `frontend/index.html`
 
 ## Pré-requisitos
 
@@ -165,7 +168,6 @@ Para executar o projeto com conforto, tenha instalado:
 - Python 3.13
 - Poetry
 - VS Code
-- Extensão `Live Server` no VS Code
 
 ## Configuração do Ambiente
 
@@ -204,12 +206,15 @@ Esse comando sobe:
 
 - um container PostgreSQL
 - um container da aplicação FastAPI
+- um container Nginx (servindo o frontend e atuando como proxy reverso para a API)
 
-### 2. Acessar a API
+### 2. Acessar a aplicação
 
 Depois que os containers estiverem prontos:
 
-- API: `http://localhost:8000`
+- Frontend: `http://localhost:8080`
+- API (via proxy): `http://localhost:8080/api/`
+- API (direta): `http://localhost:8000`
 - Documentação Swagger: `http://localhost:8000/docs`
 - Documentação ReDoc: `http://localhost:8000/redoc`
 
@@ -267,21 +272,20 @@ Depois disso:
 - API: `http://localhost:8000`
 - Swagger UI: `http://localhost:8000/docs`
 
-## Como Testar o Frontend
+## Como Acessar o Frontend
 
-O frontend deste projeto é estático e foi utilizado com a extensão `Live Server` no VS Code.
+O frontend deste projeto é estático e é servido automaticamente pelo Nginx quando você sobe a aplicação utilizando o Docker.
 
 ### Passo a passo
 
-1. Abra o repositório no VS Code.
-2. Instale ou habilite a extensão `Live Server`.
-3. Abra o arquivo `frontend/index.html`.
-4. Clique em `Open with Live Server`.
+1. Execute `docker-compose up --build`
+2. Acesse `http://localhost:8080` no seu navegador.
+3. As requisições para a API são feitas automaticamente utilizando o proxy reverso do Nginx através do endpoint `/api/`.
 
 Importante:
 
-- a API deve estar rodando em `http://localhost:8000`
-- o frontend faz requisições para esse endereço
+- Caso esteja rodando a aplicação localmente sem Docker, você pode utilizar a extensão `Live Server` no VS Code ou qualquer servidor HTTP apontando para a pasta `frontend`.
+- Nesse caso, a API deve estar rodando em `http://localhost:8000` e pode ser necessário ajustar a URL base no arquivo `api.js` (ou garantir que há um proxy configurado no seu servidor local).
 
 ## Como Validar que a Aplicação Funcionou
 
@@ -289,7 +293,7 @@ Roteiro de validação:
 
 1. Acesse `http://localhost:8000` e confirme a resposta `Hello World!`
 2. Acesse `http://localhost:8000/docs` e verifique se a documentação da API abriu
-3. Abra o frontend com Live Server
+3. Acesse o frontend em `http://localhost:8080`
 4. Crie uma conta
 5. Faça login
 6. Cadastre uma empresa
@@ -298,7 +302,7 @@ Roteiro de validação:
 
 ## Rodando os Testes
 
-Para executar a suíte de testes:
+Para executar a suíte de testes unitários e de integração:
 
 ```bash
 poetry run task test
@@ -314,6 +318,20 @@ Observação importante:
 
 - os testes utilizam `testcontainers`
 - portanto, o Docker deve estar instalado e em execução
+
+### Testes End-to-End (E2E)
+
+O projeto também conta com testes E2E utilizando Playwright. Para rodá-los:
+
+```bash
+poetry run task e2e
+```
+
+Esse comando irá:
+1. Criar as pastas de relatórios necessárias.
+2. Subir os containers do banco de dados, frontend e Playwright (com o profile `test`).
+3. Executar os testes automatizados simulando a interação de um usuário.
+4. Derrubar os containers de teste ao final.
 
 ## Variáveis de Ambiente
 
