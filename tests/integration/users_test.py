@@ -20,16 +20,23 @@ async def test_user_create_with_valid_payload_returns_created(client):
     }
 
 
-async def test_user_list_when_no_users_exist_returns_empty_list(client):
-    response = await client.get("/users/")
-    assert response.status_code == HTTPStatus.OK
-    assert response.json() == {"users": []}
-
-
-async def test_user_list_when_users_exist_returns_user_list(client, user):
+async def test_user_list_returns_authenticated_user(client, user, token):
     user_schema = UserPublicSchema.model_validate(user).model_dump()
-    response = await client.get("/users/")
+    response = await client.get("/users/", headers={"Authorization": f"Bearer {token}"})
+    assert response.status_code == HTTPStatus.OK
     assert response.json() == {"users": [user_schema]}
+
+
+async def test_user_list_when_users_exist_returns_user_list(client, user, token):
+    user_schema = UserPublicSchema.model_validate(user).model_dump()
+    response = await client.get("/users/", headers={"Authorization": f"Bearer {token}"})
+    assert response.json() == {"users": [user_schema]}
+
+
+async def test_user_list_unauthorized_returns_unauthorized(client):
+    response = await client.get("/users/")
+    assert response.status_code == HTTPStatus.UNAUTHORIZED
+    assert response.json() == {"detail": "Not authenticated"}
 
 
 async def test_user_update_with_valid_payload_returns_ok(client, user, token):

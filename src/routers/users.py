@@ -1,3 +1,5 @@
+# pylint: disable=unused-argument
+
 from http import HTTPStatus
 from typing import Annotated
 
@@ -29,7 +31,9 @@ async def create_user(user: UserCreateSchema, session: Session):
 
 @router.get("/", response_model=UserListSchema)
 async def read_users(
-    session: Session, filter_users: Annotated[FilterPageSchema, Query()]
+    session: Session,
+    filter_users: Annotated[FilterPageSchema, Query()],
+    current_user: CurrentUser,
 ):
     users = await UserService(session).list(filter_users)
     return {"users": users}
